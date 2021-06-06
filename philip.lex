@@ -33,7 +33,9 @@ id   [A-Za-z_][A-Za-z_0-9]*
 
 "break" {return BREAK;}
 
-"const" {return CONST;}
+"var" {printf("LEX : var\n");return VAR;}
+
+"const" {printf("LEX : const\n");return CONST;}
 
 "int" {printf("LEX : int\n");return INT;}
 
