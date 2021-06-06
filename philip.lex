@@ -5,7 +5,7 @@ typedef char* string;
 #include <stdio.h>
 #include <string.h>
 //extern char* yylval;
-bool lexdbg = false;
+int lexdbg = 0;
 %}
 
 digit  [0-9]
@@ -29,7 +29,6 @@ id   [A-Za-z_][A-Za-z_0-9]*
 "while" { if(lexdbg) printf("LEX : while\n"); return WHILE;}
 "continue" { if(lexdbg) printf("LEX : continue\n"); return CONTINUE;}
 "break" { if(lexdbg) printf("LEX : break\n"); return BREAK;}
-"var" { if(lexdbg) printf("LEX : var\n");return VAR;}
 "const" { if(lexdbg) printf("LEX : const\n");return CONST;}
 "int" { if(lexdbg) printf("LEX : int\n");return INT;}
 "void" { if(lexdbg) printf("LEX : void\n"); return VOID; }
