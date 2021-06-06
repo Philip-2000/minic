@@ -5,6 +5,7 @@ typedef char* string;
 #include <stdio.h>
 #include <string.h>
 //extern char* yylval;
+bool lexdbg = false;
 %}
 
 digit  [0-9]
@@ -23,61 +24,41 @@ id   [A-Za-z_][A-Za-z_0-9]*
 
 %%
 
-"if" {return IF;}
-
-"else" {return ELSE;}
-
-"while" {return WHILE;}
-
-"continue" {return CONTINUE;}
-
-"break" {return BREAK;}
-
-"var" {printf("LEX : var\n");return VAR;}
-
-"const" {printf("LEX : const\n");return CONST;}
-
-"int" {printf("LEX : int\n");return INT;}
-
-"void" {return VOID; }
-
-"return" {return RETURN;}
-
-"<=" {return LREQ;}
-
-">=" {return GREQ;}
-
-"==" {return EQEQ;}
-
-"!=" {return NOEQ;}
-
-"&&" {return ANDAND;}
-
-"||" {return OROR;}
-
-"=" { printf("LEX : eq\n"); return EQ; }
-"(" { printf("LEX : (\n"); return BRA; }
-")" { printf("LEX : )\n"); return KET; }
-"[" { printf("LEX : [\n"); return BRAA; }
-"]" { printf("LEX : ]\n"); return KETT; }
-"{" { printf("LEX : {\n"); return BRAAA; }
-"}" { printf("LEX : }\n"); return KETTT; }
-"+" { printf("LEX : +\n"); return ADD;}
-"-" { printf("LEX : -\n"); return SUB;}
-"*" { printf("LEX : *\n"); return MUL;}
-"/" { printf("LEX : /\n"); return DIV;}
-"%" { printf("LEX : MOD\n"); return MOD;}
-"!" { printf("LEX : !\n"); return NO;}
-"," { printf("LEX : ,\n"); return COMMA;}
-";" { printf("LEX : ;\n"); return SEMI;}
-">" { printf("LEX : >\n"); return GR;}
-"<" { printf("LEX : <\n"); return LR;}
-{id} { printf("LEX : id\n");
-	yylval = strdup(yytext); return IDENT;
-	}
-{nonzero} { printf("LEX : int_const\n"); 
-	yylval = strdup(yytext); return INT_CONST;
-	 }
+"if" { if(lexdbg) printf("LEX : if\n"); return IF;}
+"else" { if(lexdbg) printf("LEX : else\n"); return ELSE;}
+"while" { if(lexdbg) printf("LEX : while\n"); return WHILE;}
+"continue" { if(lexdbg) printf("LEX : continue\n"); return CONTINUE;}
+"break" { if(lexdbg) printf("LEX : break\n"); return BREAK;}
+"var" { if(lexdbg) printf("LEX : var\n");return VAR;}
+"const" { if(lexdbg) printf("LEX : const\n");return CONST;}
+"int" { if(lexdbg) printf("LEX : int\n");return INT;}
+"void" { if(lexdbg) printf("LEX : void\n"); return VOID; }
+"return" { if(lexdbg) printf("LEX : return\n"); return RETURN;}
+"<=" { if(lexdbg) printf("LEX : <=\n"); return LREQ;}
+">=" { if(lexdbg) printf("LEX : >=\n"); return GREQ;}
+"==" { if(lexdbg) printf("LEX : ==\n"); return EQEQ;}
+"!=" { if(lexdbg) printf("LEX : !=\n"); return NOEQ;}
+"&&" { if(lexdbg) printf("LEX : &&\n"); return ANDAND;}
+"||" { if(lexdbg) printf("LEX : ||\n"); return OROR;}
+"="  { if(lexdbg) printf("LEX : eq\n"); return EQ; }
+"("  { if(lexdbg) printf("LEX : (\n"); return BRA; }
+")"  { if(lexdbg) printf("LEX : )\n"); return KET; }
+"["  { if(lexdbg) printf("LEX : [\n"); return BRAA; }
+"]"  { if(lexdbg) printf("LEX : ]\n"); return KETT; }
+"{"  { if(lexdbg) printf("LEX : {\n"); return BRAAA; }
+"}"  { if(lexdbg) printf("LEX : }\n"); return KETTT; }
+"+"  { if(lexdbg) printf("LEX : +\n"); return ADD;}
+"-"  { if(lexdbg) printf("LEX : -\n"); return SUB;}
+"*"  { if(lexdbg) printf("LEX : *\n"); return MUL;}
+"/"  { if(lexdbg) printf("LEX : /\n"); return DIV;}
+"%"  { if(lexdbg) printf("LEX : MOD\n"); return MOD;}
+"!"  { if(lexdbg) printf("LEX : !\n"); return NO;}
+","  { if(lexdbg) printf("LEX : ,\n"); return COMMA;}
+";"  { if(lexdbg) printf("LEX : ;\n"); return SEMI;}
+">"  { if(lexdbg) printf("LEX : >\n"); return GR;}
+"<"  { if(lexdbg) printf("LEX : <\n"); return LR;}
+{id} { if(lexdbg) printf("LEX : id\n");yylval = strdup(yytext); return IDENT; }
+{int_const} { if(lexdbg) printf("LEX : int_const\n"); yylval = strdup(yytext); return INT_CONST; }
 
 %%
 
