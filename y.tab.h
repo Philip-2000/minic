@@ -57,33 +57,32 @@ extern int yydebug;
     CONTINUE = 263,
     BREAK = 264,
     CONST = 265,
-    VAR = 266,
-    INT = 267,
-    VOID = 268,
-    RETURN = 269,
-    LREQ = 270,
-    GREQ = 271,
-    EQEQ = 272,
-    NOEQ = 273,
-    ANDAND = 274,
-    OROR = 275,
-    EQ = 276,
-    BRA = 277,
-    KET = 278,
-    BRAA = 279,
-    KETT = 280,
-    BRAAA = 281,
-    KETTT = 282,
-    COMMA = 283,
-    SEMI = 284,
-    ADD = 285,
-    SUB = 286,
-    MUL = 287,
-    DIV = 288,
-    MOD = 289,
-    NO = 290,
-    GR = 291,
-    LR = 292
+    INT = 266,
+    VOID = 267,
+    RETURN = 268,
+    LREQ = 269,
+    GREQ = 270,
+    EQEQ = 271,
+    NOEQ = 272,
+    ANDAND = 273,
+    OROR = 274,
+    EQ = 275,
+    BRA = 276,
+    KET = 277,
+    BRAA = 278,
+    KETT = 279,
+    BRAAA = 280,
+    KETTT = 281,
+    COMMA = 282,
+    SEMI = 283,
+    ADD = 284,
+    SUB = 285,
+    MUL = 286,
+    DIV = 287,
+    MOD = 288,
+    NO = 289,
+    GR = 290,
+    LR = 291
   };
 #endif
 /* Tokens.  */
@@ -95,33 +94,32 @@ extern int yydebug;
 #define CONTINUE 263
 #define BREAK 264
 #define CONST 265
-#define VAR 266
-#define INT 267
-#define VOID 268
-#define RETURN 269
-#define LREQ 270
-#define GREQ 271
-#define EQEQ 272
-#define NOEQ 273
-#define ANDAND 274
-#define OROR 275
-#define EQ 276
-#define BRA 277
-#define KET 278
-#define BRAA 279
-#define KETT 280
-#define BRAAA 281
-#define KETTT 282
-#define COMMA 283
-#define SEMI 284
-#define ADD 285
-#define SUB 286
-#define MUL 287
-#define DIV 288
-#define MOD 289
-#define NO 290
-#define GR 291
-#define LR 292
+#define INT 266
+#define VOID 267
+#define RETURN 268
+#define LREQ 269
+#define GREQ 270
+#define EQEQ 271
+#define NOEQ 272
+#define ANDAND 273
+#define OROR 274
+#define EQ 275
+#define BRA 276
+#define KET 277
+#define BRAA 278
+#define KETT 279
+#define BRAAA 280
+#define KETTT 281
+#define COMMA 282
+#define SEMI 283
+#define ADD 284
+#define SUB 285
+#define MUL 286
+#define DIV 287
+#define MOD 288
+#define NO 289
+#define GR 290
+#define LR 291
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
