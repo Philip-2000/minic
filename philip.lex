@@ -58,12 +58,21 @@ id   [A-Za-z_][A-Za-z_0-9]*
 "<"  { if(lexdbg) printf("LEX : <\n"); return LR;}
 {id} { if(lexdbg) printf("LEX : id\n");
 	yylval = new treeNode(Object);
-	//store the name first and use the symtabid later(not now)
+	yylval->attr.n = strdup(yytext);
+		//store the name first and use the symtabid later(not now)
 	return IDENT; 
 	}
 {int_const} { if(lexdbg) printf("LEX : int_const\n");
 	yylval = new treeNode(Expression);
-	yylval->attr.op = EMPTY_; //put the yytext here?
+	yylval->attr.op = EMPTY_;
+	int v = 0;
+	if(yytext[0] == '0'){
+		if(yytext[1] == 'x') sscanf(yytext, "%x", &v);
+		else sscanf(yytext, "%o", &v);
+	}
+	else sscanf(yytext, "%d", &v);
+	yylval->val = v; //put the value in yylval->val decimal;
+	
 	return INT_CONST;
 	}
 

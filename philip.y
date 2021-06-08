@@ -62,12 +62,11 @@ ConstDef      : IDENT ConstExpAs{
 			
 				//first check if it is defined
 	      		char *N = strdup($1->attr.n);
-              		if(lookup(N,1) != -1) return -1;
+              		if(lookup(N,1) != -1) yyerror("symbol re-defined");
               		
               			//recursively get those parameters
 			int sszCnt = 0, ssz[MAXDIM] = {0};
-			
-			treeNode *ptr = $1->first;
+			treeNode *ptr = $2->first;
 			for(;sszCnt < MAXDIM; ++sszCnt){
 				if(ptr == NULL) break;
 				ssz[sszCnt] = ptr->first->calc();
@@ -76,9 +75,16 @@ ConstDef      : IDENT ConstExpAs{
 			if(sszCnt >= MAXDIM) yyerror("too many dimension");
 			
 				//define it
-			SymTab[SymCnt].modify(N,0,1,/*?*/, sszCnt, ssz);
+			int R = SymStack[currentSymStack];
+			SymTab[SymCnt].modify(N,0,1, !R , sszCnt, ssz);
+			SymStack[currentSymStack] = 1;
+			$1->attr.idx = currentSym;
 			
-		} EQ ConstInitVal{			
+		} EQ ConstInitVal{
+			//error if the size is wrong
+			
+			
+						
 			//hang CEAs under IDENT as obj
 			$1->first = $2->first; //index linked table head
 			delete $2;
@@ -92,11 +98,20 @@ ConstDef      : IDENT ConstExpAs{
               		
               			//first check if it is defined
               		char *N = strdup($1->attr.n);
-              		if(lookup(N,1) != -1) return -1;
+              		if(lookup(N,1) != -1) yyerror("symbol re-defined");
               		
               			//define it
-			SymTab[SymCnt].modify(N,0,1,/*?*/);
+              		int R = SymStack[currentSymStack];
+			SymTab[SymCnt].modify(N,0,1,!R);
+			SymStack[currentSymStack] = 1;
+			$1->attr.idx = currentSym;
+			
               	} EQ ConstInitVal{
+              		//error if the size is wrong
+              		if($4->first->type != Expression ||
+              			$4->last != NULL)
+              			yyerror("vector on scaler");
+              		
      			$$ = new treeNode(Define);
 			$$->is_const = 1;
 			$$->first = $1;  $$->last = $3;
@@ -104,8 +119,7 @@ ConstDef      : IDENT ConstExpAs{
 ConstInitVals : ConstInitVal COMMA ConstInitVals{
 			$1->last = $3->first;
 			$$ = new treeNode();
-			$$->first = $1;
-			delete $3;
+			$$->first = $1; delete $3;
 		}
               | ConstInitVal{
               		$1->last = NULL;
@@ -140,7 +154,30 @@ VarDefs       : VarDef COMMA VarDefs{
               		$$ = new treeNode();
               		$$->first = $1;
               	};
-VarDef        : IDENT ConstExpAs EQ InitVal{
+VarDef        : IDENT ConstExpAs {
+			//define this IDENT;
+			
+				//first check if it is defined
+	      		char *N = strdup($1->attr.n);
+              		if(lookup(N,1) != -1) yyerror("symbol re-defined");
+              		
+              			//recursively get those parameters
+			int sszCnt = 0, ssz[MAXDIM] = {0};
+			treeNode *ptr = $2->first;
+			for(;sszCnt < MAXDIM; ++sszCnt){
+				if(ptr == NULL) break;
+				ssz[sszCnt] = ptr->first->calc();
+				ptr = ptr->last;
+			}
+			if(sszCnt >= MAXDIM) yyerror("too many dimension");
+			
+				//define it
+			int R = SymStack[currentSymStack];
+			SymTab[SymCnt].modify(N,0,0,!R, sszCnt, ssz);
+			SymStack[currentSymStack] = 1;
+			$1->attr.idx = currentSym;
+			
+		}EQ InitVal{
 			//hang CEAs under IDENT as obj
 			$1->first = $2->first; //index linked table head
 			delete $2;
@@ -149,12 +186,52 @@ VarDef        : IDENT ConstExpAs EQ InitVal{
 			$$->is_const = 0;
 			$$->first = $1;  $$->last = $4;
 		}
-              | IDENT EQ InitVal{
+              | IDENT {
+              		//define this IDENT
+              		
+              			//first check if it is defined
+              		char *N = strdup($1->attr.n);
+              		if(lookup(N,1) != -1) yyerror("symbol re-defined");
+              		
+              			//define it
+              		int R = SymStack[currentSymStack];
+			SymTab[SymCnt].modify(N,0,0,!R);
+			SymStack[currentSymStack] = 1;
+			$1->attr.idx = currentSym;
+			
+              	} EQ InitVal{
+              		//error if the size is wrong
+              		if($4->first->type != Expression ||
+              			$4->last != NULL)
+              			yyerror("vector on scaler");
+              
 			$$ = new treeNode(Define);
 			$$->is_const = 0;
 			$$->first = $1;  $$->last = $3;
 		}
               | IDENT ConstExpAs{
+			//define this IDENT;
+			
+				//first check if it is defined
+	      		char *N = strdup($1->attr.n);
+              		if(lookup(N,1) != -1) yyerror("symbol re-defined");
+              		
+              			//recursively get those parameters
+			int sszCnt = 0, ssz[MAXDIM] = {0};
+			treeNode *ptr = $2->first;
+			for(;sszCnt < MAXDIM; ++sszCnt){
+				if(ptr == NULL) break;
+				ssz[sszCnt] = ptr->first->calc();
+				ptr = ptr->last;
+			}
+			if(sszCnt >= MAXDIM) yyerror("too many dimension");
+			
+				//define it
+			int R = SymStack[currentSymStack];
+			SymTab[SymCnt].modify(N,0,0,!R, sszCnt, ssz);
+			SymStack[currentSymStack] = 1;
+			$1->attr.idx = currentSym;
+              
  			//hang CEAs under IDENT as obj
 			$1->first = $2->first; //index linked table head
 			delete $2;
@@ -164,6 +241,18 @@ VarDef        : IDENT ConstExpAs EQ InitVal{
 			$$->first = $1;  $$->last = NULL;
 		}
               | IDENT{
+              		//define this IDENT
+              		
+              			//first check if it is defined
+              		char *N = strdup($1->attr.n);
+              		if(lookup(N,1) != -1) yyerror("symbol re-defined");
+              		
+              			//define it
+              		int R = SymStack[currentSymStack];
+			SymTab[SymCnt].modify(N,0,0,!R);
+			SymStack[currentSymStack] = 1;
+			$1->attr.idx = currentSym;
+			
 			$$ = new treeNode(Define);
 			$$->is_const = 0;
 			$$->first = $1;  $$->last = NULL;
@@ -171,8 +260,7 @@ VarDef        : IDENT ConstExpAs EQ InitVal{
 InitVals      : InitVal COMMA InitVals{
 			$1->last = $3->first;
 			$$ = new treeNode();
-			$$->first = $1;
-			delete $3;
+			$$->first = $1; delete $3;
 		}
               | InitVal{
               		$1->last = NULL;
@@ -192,23 +280,74 @@ InitVal       : Exp{
 			$$->first = NULL;
               	};
 
-FuncDef       : FuncType IDENT BRA KET Block{
+FuncDef       : FuncType IDENT {
+			//define IDENT
+				//check if I'm at the root
+			if(step_out() != 0)
+				yyerror("Function Defined not at root");
+				
+				//check if name defined lookup(N,1,1)
+	      		char *N = strdup($2->attr.n);
+              		if(lookup(N,1,1) != -1) yyerror("Func re-defined");
+				
+				//define it and modify flags about r
+			int R = SymStack[currentSymStack];
+			SymTab[SymCnt].modify(N,1,0,!R);
+			SymStack[currentSymStack] = 1;
+			$2->attr.idx = currentSym;
+			
+			++currentSymStack;
+			
+		} BRA KET Block {
+			
 			$$ = new treeNode(FuncDef);
 			$$->first = NULL;
 			$$->last = $5;
+			$$->attr.idx = currentSym;
 			
+			if(SymStack[currentSymStack] == 1)
+				currentSym = step_out();
+			--currentSymStack;
+
 		}
-              | FuncType IDENT BRA FuncFParams KET Block{
+              | FuncType IDENT {
+			//define IDENT
+				//check if I'm at the root
+			if(step_out() != 0)
+				yyerror("Function Defined not at root");
+				
+				//check if name defined lookup(N,1,1)
+	      		char *N = strdup($2->attr.n);
+              		if(lookup(N,1,1) != -1) yyerror("Func re-defined");
+				
+				//define it and modify flags about r
+			int R = SymStack[currentSymStack];
+			SymTab[SymCnt].modify(N,1,0,!R);
+			SymStack[currentSymStack] = 1;
+			$2->attr.idx = currentSym;
+			
+			++currentSymStack;
+			
+              	} BRA FuncFParams KET {
+              		//check how many parameters are there for me
+              		int paraCnt = 0;
+              		treeNode * pointer = $4->first;
+              		while(pointer != NULL){
+              			++paraCnt;
+              			pointer = pointer->last;
+              		}
+              		SymTab.[$2->attr.idx].szCnt = paraCnt;
+              		
+              	} Block {
+			
               		$$ = new treeNode(FuncDef);
-			$$->first = $4;
+			$$->first = $4->first; delete $4;
 			$$->last = $6;
-			if( $6->is_ret == notRetu ){
-				yyerror("function didn't return");
-			}else if( /*???*/ && $6->is_ret == Retu){
-				yyerror("function return nothing");
-			}else if( /*???*/ && $6->is_ret == RetuExp){
-				yyerror("function return something");
-			}
+			$$->attr.idx = currentSym;
+			
+			if(SymStack[currentSymStack] == 1)
+				currentSym = step_out();
+			--currentSymStack;
               	};
 FuncType      : VOID | INT; //rules useless due to conflict
 FuncFParams   : FuncFParam COMMA FuncFParams{
@@ -222,36 +361,90 @@ FuncFParams   : FuncFParam COMMA FuncFParams{
               		$$->first = $1;
               	};
 FuncFParam    : BType IDENT BRAA KETT ConstExpAs{
+			//define this IDENT;
+			
+				//first check if it is defined
+	      		char *N = strdup($1->attr.n);
+              		if(lookup(N,1) != -1) yyerror("symbol re-defined");
+              		
+              			//recursively get those parameters
+			int sszCnt = 0, ssz[MAXDIM] = {0};
+			treeNode *ptr = $5->first;
+			for(;sszCnt < MAXDIM; ++sszCnt){
+				if(ptr == NULL) break;
+				ssz[sszCnt] = ptr->first->calc();
+				ptr = ptr->last;
+			}
+			if(sszCnt >= MAXDIM) yyerror("too many dimension");
+			
+				//define it
+			int R = SymStack[currentSymStack];
+			SymTab[SymCnt].modify(N,0,0,!R0,sszCnt,ssz,1);
+			SymStack[currentSymStack] = 1;
+			$2->attr.idx = currentSym;
+			
 			$$ = new treeNode(ParaDefine);
 			$$->attr.is_ptr = 1;
 			$$->first = $5;
+			$$->attr.idx = currentSym;
 		}
               | BType IDENT BRAA KETT{
+              		//define this IDENT
+              		
+              			//first check if it is defined
+              		char *N = strdup($1->attr.n);
+              		if(lookup(N,1) != -1) yyerror("symbol re-defined");
+              		
+              			//define it
+              		int R = SymStack[currentSymStack];
+			SymTab[SymCnt].modify(N,0,0,!R,0,NULL,1);
+			SymStack[currentSymStack] = 1;
+			$2->attr.idx = currentSym;
+			
               		$$ = new treeNode(ParaDefine);
               		$$->attr.is_ptr = 1;
               		$$->first = NULL;
+              		$$->attr.idx = currentSym;
               	}
               | BType IDENT{
+              		//define this IDENT
+              		
+              			//first check if it is defined
+              		char *N = strdup($1->attr.n);
+              		if(lookup(N,1) != -1) yyerror("symbol re-defined");
+              		
+              			//define it
+              		int R = SymStack[currentSymStack];
+			SymTab[SymCnt].modify(N,0,0,!R);
+			SymStack[currentSymStack] = 1;
+			$2->attr.idx = currentSym;
+			
               		$$ = new treeNode(ParaDefine);
               		$$->attr.is_ptr = 0;
               		$$->first = NULL;
+              		$$->attr.idx = currentSym;
               	};
 
-Block         : BRAAA BlockItems KETTT{
+Block         : BRAAA { ++currentSymStack; } BlockItems KETTT{
 			$$ = new treeNode();
 			$$->first = $2->first;
 			delete $2;
+			
+			
+			
+			if(SymStack[currentSymStack] == 1)
+				currentSym = step_out();
+			--currentSymStack;
 		}
-              | BRAAA KETTT{
+              | BRAAA { ++currentSymStack; } KETTT{
               		$$ = new treeNode();
-              		$$->first = NULL;
+              		$$->first = NULL; //same as above to avoid conflict
+              		if(SymStack[currentSymStack] == 1)
+				currentSym = step_out();
+			--currentSymStack;
               	};
 BlockItems    : BlockItem BlockItems{
 			$1->last = $2->first;
-			
-			if($1->is_ret != $2->is_ret){
-              			yyerror("return situation is different");
-              		}
 			$$ = new treeNode();
 			$$->first = $1; delete $2;
 		}
@@ -259,45 +452,39 @@ BlockItems    : BlockItem BlockItems{
               		$1->last = NULL;
               		$$ = new treeNode();
               		$$->first = $1;
-              		$$->is_ret = $1->is_ret;
               	};
 BlockItem     : Decl{
 			$$ = new treeNode();
 			$$->first = $1->first; delete $1;
-			$$->is_ret = notRetu;
 		}
 	      | Stmt{
 	      		$$ = new treeNode();
 	      		$$->first = $1;
-	      		$$->is_ret = $1->is_ret;
 	      	};
 Stmt          : LVal EQ Exp SEMI{
 			$$ = new treeNode(Assignment);
 			$$->first = $1;
 			$$->last = $3;
-			$$->is_ret = notRetu;
 		}
               | Exp SEMI{
               		$$ = new treeNode(Expression);
               		$$->first = $1;
               		$$->attr.op = EMPTY_;
-              		$$->is_ret = notRetu;
               	}
               | SEMI{
               		$$ = new treeNode();
               		$$->first = NULL; $$->last = NULL;
-              		$$->is_ret = notRetu;
               	} // [Exp] ';'
               | Block{
               		$$ = new treeNode(StmtBlock);
-              		$$->is_ret = $1->first->is_ret;
               		$$->first = $1->first; delete $1;
               	}
               | IF BRA Cond KET Stmt{
               		$$ = new treeNode(If);
               		$$->first = $3;
               		$$->last = $5;
-              		$$->is_ret = $5->is_ret;
+              		$$->end_if = labelCnt++;
+              		$$->begin_true = labelCnt++; 
               	}
               | IF BRA Cond KET Stmt ELSE Stmt{
               		$$ = new treeNode(If);
@@ -306,36 +493,32 @@ Stmt          : LVal EQ Exp SEMI{
               		$$->last = $6;
               		$6->first = $5;
               		$6->last = $7;
-              		
-              		if($5->is_ret != $7->is_ret){
-              			yyerror("return situation is different");
-              		}
+              		$$->end_if = labelCnt++;
+              		$$->begin_true = labelCnt++;
               	}
               | WHILE BRA Cond KET Stmt{
               		$$ = new treeNode(Loop);
               		$$->first = $3;
               		$$->last = $5;
-              		$$->is_ret = $5->is_ret;
+              		$$->end_loop = labelCnt++;
+              		$$->begin_loop = labelCnt++;
 		}
               | BREAK SEMI{
               		$$ = new treeNode(Branch);
-              		//unfinished
-              		$$->is_ret = notRetu;
+              		$$->b_type = b_break;
               	}
               | CONTINUE SEMI{
               		$$ = new treeNode(Branch);
-              		//unfinished
-              		$$->is_ret = notRetu;
+              		$$->b_type = b_contin;
               	}
               | RETURN SEMI{
               		$$ = new treeNode(Branch);
-              		//unfinished
-              		$$->is_ret = Retu;
+              		$$->b_type = b_return;
               	}
               | RETURN Exp SEMI{
               		$$ = new treeNode(Branch);
-              		//unfinished
-              		$$->is_ret = RetuExp;
+              		$$->b_type = b_return;
+              		$$->last = $2;
               	};
 
 ExpAs         : ExpA ExpAs{
@@ -367,11 +550,32 @@ Cond          : LOrExp{
               	};
 LVal          : IDENT ExpAs{
               		$$ = new treeNode(Object);
-              		$$->first = $2;
+              		char *N = strdup($1->attr.n);
+              		int res = lookup(N);
+              		if( res == -1 ) yyerror("no such id");
+              		
+              		int sszCnt = 0;
+			treeNode *ptr = $2->first;
+			for(;sszCnt < MAXDIM; ++sszCnt){
+				if(ptr == NULL) break;
+				ptr = ptr->last;
+			}
+			if(sszCnt >= MAXDIM) yyerror("too many dimension");
+              		if( SymTab[res].szCnt != sszCnt)
+              			yyerror("dimension fault");
+              		
+              		$$->attr.idx = res;
+              		$$->first = $2->first;
               		$$->is_const = 0;
               	}
               | IDENT{
               		$$ = new treeNode(Object);
+              		char *N = strdup($1->attr.n);
+              		int res = lookup(N);
+              		if( res == -1 ) yyerror("no such id");
+              		if( SymTab[res].szCnt != 0) yyerror("dim fault");
+              		
+              		$$->attr.idx = res;
               		$$->first = NULL;
               		$$->is_const = 0;
               	};
@@ -405,11 +609,30 @@ UnaryExp      : PrimaryExp{
 		}
               | IDENT BRA FuncRParams KET{
               		$$ = new treeNode(FuncCall);
+              		char *N = strdup($1->attr.n);
+              		int res = lookup(N,0,1);
+              		if( res == -1 ) yyerror("no such function");
+              		
+              		int paraCnt = 0;
+              		treeNode * pointer = $3->first;
+              		while(pointer != NULL){
+              			++paraCnt;
+              			pointer = pointer->last;
+              		}
+              		if( SymTab[res].szCnt != paraCnt) 
+              			yyerror("para fault");
+              		
               		$$->first = $3;
 			$$->is_const = 0;
               	}
               | IDENT BRA KET{
+              
               		$$ = new treeNode(FuncCall);
+              		char *N = strdup($1->attr.n);
+              		int res = lookup(N,0,1);
+              		if( res == -1 ) yyerror("no such function");
+              		if( SymTab[res].szCnt != 0) yyerror("para fault");
+              		
               		$$->first = NULL;
               		$$->is_const = 0;
               	}

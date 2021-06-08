@@ -19,16 +19,16 @@
 #define Assignment 0x01	//	first = obj, last = exp
 #define Declarate  0x02	//cst	first = definitions. last = NULL
 #define Define     0x03	//cst	first = obj, last = exp or NULL
-#define ParaDefine 0x04	//ptr?	first = indices or NULL
+#define ParaDefine 0x04	//name	first = indices or NULL
 #define Expression 0x05	//op	
 #define Condition  0x06	//op	
 #define Object     0x07	//name	first = indices, last = NULL
-#define FuncDef    0x08	//name	first = list, last = body
-#define FuncCall   0x09	//name	first = list, last = NULL
+#define FuncDef    0x08	//name	first = listIt, last = body
+#define FuncCall   0x09	//name	first = listIt, last = NULL
 #define StmtBlock  0x0A	//	first = blockIt, last = NULL
 #define If         0x0C	//	first = cond, last = stmts/else
 #define Else       0x0D	//	first = stmts,last = stmts
-#define Loop       0x0E	//	first = cond, last = stmts
+#define Loop       0x0E	// 	first = cond, last = stmts
 #define Branch     0x0F	//dest	(last = exp for ret)
 
 #define LinkedNode 0x10	//attr	first = self, last = next
@@ -36,7 +36,7 @@
 #define Parameter  0x12	//	first = paraDefine
 #define Argument   0x13	//	first = exp
 #define BlockIt    0x14	//	first = stmt
-#define Values     0x15	//	first = exp
+#define Values     0x15	//	first = exp/values
 #define Index      0x16	//	first = constexp
 #define CompilUnit 0x17	//	first = decl/funcdef
 
@@ -44,28 +44,40 @@
 #define Retu    0x1
 #define RetuExp 0x3
 
+#define b_return 0x1
+#define b_contin 0x2
+#define b_break  0x3
+
+#include <stdio.h>
 #include <string.h>
 #define MAXSYMBOL 128
+#define MAXSTACK  32
 #define MAXDIM    10
+
+//about label:
+	//if labelOne:end of if, labelTwo:beginning of cond = true,
+	//loop labelOne:end of loop, labelTwo: beginning of loop
+
+int labelCnt = 0;
 
 class treeNode{
 	treeNode *first;
 	treeNode *last;
 	int is_const = 0;
 	int is_ptr = 0;
-	int is_ret = 0;
 	int op;
+	int b_type;
 	int val = -1;
+	int end_if, begin_true, end_loop, begin_loop;
 	union Attr{
 		int idx;
 		char *n;
 		//destination : though I don't know how to code now
 	}attr;
-	char Type = '\0';
-	treeNode(int type = 0){ Type = (char)type; }
-	int calc(){
+	int Type = 0;
+	treeNode(int type = 0){ Type = type; }
+	int calc(){ //for ConstExpA to calculate its size : all const
 		if(val > -1) return val;
-		
 		if(op == 0){
 			if(first != NULL){
 				return first->calc();
@@ -85,6 +97,7 @@ class treeNode{
 			case DIV_ : return first->calc() / last->calc();
 			case MOD_ : return first->calc() % last->calc();
 			default: printf("treeNode:calc:unrecognized op\n");
+				return -1;
 		}
 	}
 };
@@ -93,39 +106,32 @@ char *Names[MAXSYMBOL];
 int SymCnt = 0;
 int currentSym = 0;
 
+int SymStack[MAXSTACK] = {0};
+int currentSymStack = 0;
+	//blocks or funcs will push this stack
+	//the end of blocks will pop this stack and step out if defined
+	//if the stack is 0, and I define, I will change it to 1 and real
+	// parameter is lower than FuncIDENT for 1 degree, but is higher than its block for 1 degree. It's easier to code.
+	
+
 class SymTabEntry{
-	int idx, prefix, is_func, real, is_const, szCnt, sz[MAXDIM]={0};
+	int idx, prefix, real;
+	int is_func, is_const, is_ptr, szCnt, sz[MAXDIM]={0};
 	void modify(const char *n, int f=0, int c=0, int r=0,
-		int SZCnt = 0, int SZ[] = NULL){
+		int SZCnt = 0, int SZ[] = NULL, int ptr=0){
 		idx = SymCnt; ++SymCnt; Names[idx] = strdup(n);
-		prefix = currentSym; currentSym = idx;
+		prefix = currentSym; currentSym = idx; is_ptr = ptr;
 		is_func = f; is_const = c; real = r; szCnt = SZCnt;
 		for(int i = 0; i < SZCnt; ++i) sz[i]=SZ[i];
 	}
 } SymTab[MAXSYMBOL];
 
-void step_out(){
-	int P = currentSym;
-	while(SymTab[P].real == 0) P = SymTab[P].prefix;
-	currentSym = SymTab[P].prefix;
-}
+//first SymTabEntry is 0, without name, indicating the head of SymTab
+void initSymTab(){}
 
-int lookup(const char *n, int limited = 0){
-	int P = currentSym;
-	if(limited){
-		while(SymTab[P].real == 0){
-			if(strcmp(Names[P], n) == 0) return P;
-			P = SymTab[P].prefix;
-		}
-	}
-	else{
-		while(P > 0){
-			if(strcmp(Names[P], n) == 0) return P;
-			P = SymTab[P].prefix;
-		}
-	}
-	return -1;
-}
+int step_out(){}
+
+int lookup(const char *n, int limited = 0, int func = 0){}
 
 // if(lookup(n,1) != -1) return -1;
 // SymTab[SymCnt].modify(n,f,c,r,......); 
