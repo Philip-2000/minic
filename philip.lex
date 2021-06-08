@@ -1,6 +1,6 @@
 %{
-typedef char* string;
-#define YYSTYPE string
+#include "philip.hpp"
+#define YYSTYPE treeNode *
 #include "y.tab.h"
 #include <stdio.h>
 #include <string.h>
@@ -56,8 +56,16 @@ id   [A-Za-z_][A-Za-z_0-9]*
 ";"  { if(lexdbg) printf("LEX : ;\n"); return SEMI;}
 ">"  { if(lexdbg) printf("LEX : >\n"); return GR;}
 "<"  { if(lexdbg) printf("LEX : <\n"); return LR;}
-{id} { if(lexdbg) printf("LEX : id\n");yylval = strdup(yytext); return IDENT; }
-{int_const} { if(lexdbg) printf("LEX : int_const\n"); yylval = strdup(yytext); return INT_CONST; }
+{id} { if(lexdbg) printf("LEX : id\n");
+	yylval = new treeNode(Object);
+	//store the name first and use the symtabid later(not now)
+	return IDENT; 
+	}
+{int_const} { if(lexdbg) printf("LEX : int_const\n");
+	yylval = new treeNode(Expression);
+	yylval->attr.op = EMPTY_; //put the yytext here?
+	return INT_CONST;
+	}
 
 %%
 
