@@ -1,10 +1,13 @@
 %{
-#include <stdio.h>
+#include <iostream>
 #include "philip.hpp"
+#include <string>
+using namespace std;
 #define YYSTYPE treeNode *
 #define YYSTYPE_IS_DECLARED
 extern int yylex(void);
 extern int yyparse(void);
+extern int yyerror(string);
 FILE *fp = NULL;
 int yaccdbg = 1;
 %}
@@ -109,7 +112,7 @@ ConstDef      : IDENT ConstExpAs{
 			
               	} EQ ConstInitVal{
               		//error if the size is wrong
-              		if($4->first->type != Expression ||
+              		if(($4->first)->Type != Expression ||
               			$4->last != NULL)
               			yyerror("vector on scaler");
               		
@@ -202,7 +205,7 @@ VarDef        : IDENT ConstExpAs {
 			
               	} EQ InitVal{
               		//error if the size is wrong
-              		if($4->first->type != Expression ||
+              		if(($4->first)->Type != Expression ||
               			$4->last != NULL)
               			yyerror("vector on scaler");
               
@@ -280,8 +283,8 @@ InitVal       : Exp{
 			$$ = new treeNode(Values);
 			$$->first = NULL;
               	};
-
-FuncDef       : FuncType IDENT {
+              	
+FuncDef_pre   : VOID IDENT{
 			//define IDENT
 				//check if I'm at the root
 			if(step_out() != 0)
@@ -293,64 +296,76 @@ FuncDef       : FuncType IDENT {
 				
 				//define it and modify flags about r
 			int R = SymStack[currentSymStack];
-			SymTab[SymCnt].modify(N,1,0,!R);
+			SymTab[SymCnt].modify(N,voidFunc,0,!R);
 			SymStack[currentSymStack] = 1;
 			$2->attr.idx = currentSym;
 			
 			++currentSymStack;
 			
-		} BRA KET Block {
+			$$ = new treeNode();
+			$$->attr.idx = currentSym;
+			delete $2;
+		}
+              | INT IDENT{
+              		//define IDENT
+				//check if I'm at the root
+			if(step_out() != 0)
+				yyerror("Function Defined not at root");
+				
+				//check if name defined lookup(N,1,1)
+	      		char *N = strdup($2->attr.n);
+              		if(lookup(N,1,1) != -1) yyerror("Func re-defined");
+				
+				//define it and modify flags about r
+			int R = SymStack[currentSymStack];
+			SymTab[SymCnt].modify(N,intFunc,0,!R);
+			SymStack[currentSymStack] = 1;
+			$2->attr.idx = currentSym;
+			
+			++currentSymStack;
+			
+			$$ = new treeNode();
+			$$->attr.idx = currentSym;
+			delete $2;
+              	};
+
+FuncDef       : FuncDef_pre BRA KET Block {
 			
 			$$ = new treeNode(FuncDef);
 			$$->first = NULL;
+			$$->last = $4;
+			$$->attr.idx = currentSym;
+			
+			if(SymStack[currentSymStack] == 1)
+				currentSym = step_out();
+			--currentSymStack;
+
+			delete $1;
+		}
+              | FuncDef_pre BRA FuncFParams KET {
+              		//check how many parameters are there for me
+              		int paraCnt = 0;
+              		treeNode * pointer = $3->first;
+              		while(pointer != NULL){
+              			++paraCnt;
+              			pointer = pointer->last;
+              		}
+              		SymTab[$1->attr.idx].szCnt = paraCnt;
+              		
+              	} Block {
+			
+              		$$ = new treeNode(FuncDef);
+			$$->first = $3->first; delete $3;
 			$$->last = $5;
 			$$->attr.idx = currentSym;
 			
 			if(SymStack[currentSymStack] == 1)
 				currentSym = step_out();
 			--currentSymStack;
-
-		}
-              | FuncType IDENT {
-			//define IDENT
-				//check if I'm at the root
-			if(step_out() != 0)
-				yyerror("Function Defined not at root");
-				
-				//check if name defined lookup(N,1,1)
-	      		char *N = strdup($2->attr.n);
-              		if(lookup(N,1,1) != -1) yyerror("Func re-defined");
-				
-				//define it and modify flags about r
-			int R = SymStack[currentSymStack];
-			SymTab[SymCnt].modify(N,1,0,!R);
-			SymStack[currentSymStack] = 1;
-			$2->attr.idx = currentSym;
 			
-			++currentSymStack;
-			
-              	} BRA FuncFParams KET {
-              		//check how many parameters are there for me
-              		int paraCnt = 0;
-              		treeNode * pointer = $4->first;
-              		while(pointer != NULL){
-              			++paraCnt;
-              			pointer = pointer->last;
-              		}
-              		SymTab.[$2->attr.idx].szCnt = paraCnt;
-              		
-              	} Block {
-			
-              		$$ = new treeNode(FuncDef);
-			$$->first = $4->first; delete $4;
-			$$->last = $6;
-			$$->attr.idx = currentSym;
-			
-			if(SymStack[currentSymStack] == 1)
-				currentSym = step_out();
-			--currentSymStack;
+			delete $1;
               	};
-FuncType      : VOID | INT; //rules useless due to conflict
+              	
 FuncFParams   : FuncFParam COMMA FuncFParams{
 			$1->last = $3->first;
 			$$ = new treeNode();
@@ -380,12 +395,12 @@ FuncFParam    : BType IDENT BRAA KETT ConstExpAs{
 			
 				//define it
 			int R = SymStack[currentSymStack];
-			SymTab[SymCnt].modify(N,0,0,!R0,sszCnt,ssz,1);
+			SymTab[SymCnt].modify(N,0,0,!R,sszCnt,ssz,1);
 			SymStack[currentSymStack] = 1;
 			$2->attr.idx = currentSym;
 			
 			$$ = new treeNode(ParaDefine);
-			$$->attr.is_ptr = 1;
+			$$->is_ptr = 1;
 			$$->first = $5;
 			$$->attr.idx = currentSym;
 		}
@@ -403,7 +418,7 @@ FuncFParam    : BType IDENT BRAA KETT ConstExpAs{
 			$2->attr.idx = currentSym;
 			
               		$$ = new treeNode(ParaDefine);
-              		$$->attr.is_ptr = 1;
+              		$$->is_ptr = 1;
               		$$->first = NULL;
               		$$->attr.idx = currentSym;
               	}
@@ -421,7 +436,7 @@ FuncFParam    : BType IDENT BRAA KETT ConstExpAs{
 			$2->attr.idx = currentSym;
 			
               		$$ = new treeNode(ParaDefine);
-              		$$->attr.is_ptr = 0;
+              		$$->is_ptr = 0;
               		$$->first = NULL;
               		$$->attr.idx = currentSym;
               	};
@@ -470,7 +485,7 @@ Stmt          : LVal EQ Exp SEMI{
               | Exp SEMI{
               		$$ = new treeNode(Expression);
               		$$->first = $1;
-              		$$->attr.op = EMPTY_;
+              		$$->op = EMPTY_;
               	}
               | SEMI{
               		$$ = new treeNode();
@@ -539,14 +554,14 @@ ExpA          : BRAA Exp KETT{
 Exp           : AddExp{
               		$$ = new treeNode(Expression);
               		$$->first = $1;
-			$$->attr.op = EMPTY_;
+			$$->op = EMPTY_;
 			$$->last = NULL;
 			$$->is_const = $1->is_const;
               	};
 Cond          : LOrExp{
               		$$ = new treeNode(Expression);
               		$$->first = $1;
-			$$->attr.op = EMPTY_;
+			$$->op = EMPTY_;
 			$$->last = NULL;
               	};
 LVal          : IDENT ExpAs{
@@ -583,28 +598,28 @@ LVal          : IDENT ExpAs{
 PrimaryExp    : BRA Exp KET{
 			$$ = new treeNode(Expression);
 			$$->first = $2;
-			$$->attr.op = EMPTY_;
+			$$->op = EMPTY_;
 			$$->last = NULL;
 			$$->is_const = $2->is_const;
 		}
               | LVal{
               		$$ = new treeNode(Expression);
 			$$->first = $1;
-			$$->attr.op = EMPTY_;
+			$$->op = EMPTY_;
 			$$->last = NULL;
 			$$->is_const = $1->is_const;
               	}
               | INT_CONST{
               		$$ = new treeNode(Expression);
 			$$->first = $1;
-			$$->attr.op = EMPTY_;
+			$$->op = EMPTY_;
 			$$->last = NULL;
 			$$->is_const = 1;
               	};
 UnaryExp      : PrimaryExp{
 			$$ = new treeNode(Expression);
 			$$->first = $1;
-			$$->attr.op = EMPTY_;
+			$$->op = EMPTY_;
 			$$->last = NULL;
 			$$->is_const = $1->is_const;
 		}
@@ -640,21 +655,21 @@ UnaryExp      : PrimaryExp{
               | ADD PrimaryExp{
 			$$ = new treeNode(Expression);
 			$$->first = NULL;
-			$$->attr.op = ADD_;
+			$$->op = ADD_;
 			$$->last = $2;
 			$$->is_const = $2->is_const;
 		}
               | SUB PrimaryExp{
 			$$ = new treeNode(Expression);
 			$$->first = NULL;
-			$$->attr.op = SUB_;
+			$$->op = SUB_;
 			$$->last = $2;
 			$$->is_const = $2->is_const;
 		}
               |  NO PrimaryExp{
 			$$ = new treeNode(Expression);
 			$$->first = NULL;
-			$$->attr.op = NO_;
+			$$->op = NO_;
 			$$->last = $2;
 			$$->is_const = $2->is_const;
 		};
@@ -671,133 +686,133 @@ FuncRParams   : Exp COMMA FuncRParams{
 MulExp        : UnaryExp MOD MulExp{
 			$$ = new treeNode(Expression);
               		$$->first = $1;
-              		$$->attr.op = MOD_;
+              		$$->op = MOD_;
               		$$->last = $3;
               		$$->is_const = $1->is_const && $3->is_const;
 		}
               | UnaryExp MUL MulExp{
 			$$ = new treeNode(Expression);
               		$$->first = $1;
-              		$$->attr.op = MUL_;
+              		$$->op = MUL_;
               		$$->last = $3;
               		$$->is_const = $1->is_const && $3->is_const;
 		}
               | UnaryExp DIV MulExp{
 			$$ = new treeNode(Expression);
               		$$->first = $1;
-              		$$->attr.op = DIV_;
+              		$$->op = DIV_;
               		$$->last = $3;
               		$$->is_const = $1->is_const && $3->is_const;
 		}
               | UnaryExp{
               		$$ = new treeNode(Expression);
               		$$->first = $1;
-			$$->attr.op = EMPTY_;
+			$$->op = EMPTY_;
 			$$->last = NULL;
 			$$->is_const = $1->is_const;
               	};
 AddExp        : MulExp SUB AddExp{
 			$$ = new treeNode(Expression);
               		$$->first = $1;
-              		$$->attr.op = SUB_;
+              		$$->op = SUB_;
               		$$->last = $3;
               		$$->is_const = $1->is_const && $3->is_const;
 		}
               | MulExp ADD AddExp{
 			$$ = new treeNode(Expression);
               		$$->first = $1;
-              		$$->attr.op = ADD_;
+              		$$->op = ADD_;
               		$$->last = $3;
               		$$->is_const = $1->is_const && $3->is_const;
 		}
               | MulExp{
               		$$ = new treeNode(Expression);
               		$$->first = $1;
-			$$->attr.op = EMPTY_;
+			$$->op = EMPTY_;
 			$$->last = NULL;
 			$$->is_const = $1->is_const;
               	};
 RelExp        : AddExp GR RelExp{
 			$$ = new treeNode(Expression);
               		$$->first = $1;
-              		$$->attr.op = GR_;
+              		$$->op = GR_;
               		$$->last = $3;
               		$$->is_const = $1->is_const && $3->is_const;
 		} 
               | AddExp LR RelExp{
 			$$ = new treeNode(Expression);
               		$$->first = $1;
-              		$$->attr.op = LR_;
+              		$$->op = LR_;
               		$$->last = $3;
               		$$->is_const = $1->is_const && $3->is_const;
 		}
               | AddExp GREQ RelExp{
 			$$ = new treeNode(Expression);
               		$$->first = $1;
-              		$$->attr.op = GREQ_;
+              		$$->op = GREQ_;
               		$$->last = $3;
               		$$->is_const = $1->is_const && $3->is_const;
 		} 
               | AddExp LREQ RelExp{
 			$$ = new treeNode(Expression);
               		$$->first = $1;
-              		$$->attr.op = LREQ_;
+              		$$->op = LREQ_;
               		$$->last = $3;
               		$$->is_const = $1->is_const && $3->is_const;
 		}
               | AddExp{
               		$$ = new treeNode(Expression);
               		$$->first = $1;
-			$$->attr.op = EMPTY_;
+			$$->op = EMPTY_;
 			$$->last = NULL;
 			$$->is_const = $1->is_const;
               	};
 EqExp         : RelExp NOEQ EqExp{
 			$$ = new treeNode(Expression);
               		$$->first = $1;
-              		$$->attr.op = NOEQ_;
+              		$$->op = NOEQ_;
               		$$->last = $3;
               		$$->is_const = $1->is_const && $3->is_const;
 		}
               | RelExp EQEQ EqExp{
 			$$ = new treeNode(Expression);
               		$$->first = $1;
-              		$$->attr.op = EQEQ_;
+              		$$->op = EQEQ_;
               		$$->last = $3;
               		$$->is_const = $1->is_const && $3->is_const;
 		}
               | RelExp{
               		$$ = new treeNode(Expression);
               		$$->first = $1;
-			$$->attr.op = EMPTY_;
-			$$->last = NULL
+			$$->op = EMPTY_;
+			$$->last = NULL;
 			$$->is_const = $1->is_const;
               	};
 LAndExp       : EqExp ANDAND LAndExp{
 			$$ = new treeNode(Expression);
               		$$->first = $1;
-              		$$->attr.op = ANDAN_;
+              		$$->op = ANDAN_;
               		$$->last = $3;
               		$$->is_const = $1->is_const && $3->is_const;
 		}
               | EqExp{
               		$$ = new treeNode(Expression);
               		$$->first = $1;
-			$$->attr.op = EMPTY_;
+			$$->op = EMPTY_;
 			$$->last = NULL;
 			$$->is_const = $1->is_const;
               	};
 LOrExp        : LAndExp OROR LOrExp{
 			$$ = new treeNode(Expression);
               		$$->first = $1;
-              		$$->attr.op = OROR_;
+              		$$->op = OROR_;
               		$$->last = $3;
               		$$->is_const = $1->is_const && $3->is_const;
 		}
               | LAndExp{
               		$$ = new treeNode(Expression);
               		$$->first = $1;
-			$$->attr.op = EMPTY_;
+			$$->op = EMPTY_;
 			$$->last = NULL;
 			$$->is_const = $1->is_const;
               	};
@@ -819,7 +834,7 @@ ConstExpA     : BRAA ConstExp KETT{
 ConstExp      : AddExp{
 			$$ = new treeNode(Expression);
 			$$->first = $1;
-			$$->attr.op = EMPTY_;
+			$$->op = EMPTY_;
 			$$->is_const = 1;
 			if($1->is_const == 0)
 				yyerror("variable in const place");
@@ -827,22 +842,21 @@ ConstExp      : AddExp{
 
 %%
 
-
-
 int main(){
   fp = fopen("./output.txt","w+"); fprintf(fp,"testing\n");
   treeNode *root = NULL;
+  initSymTab();
   yyparse(&root);
   if(root == NULL) yyerror("yyparse error: didn't return a root");
-  if(yaccdbg) dbgprt(root);
+  if(yaccdbg) dbgprt(root,0);
   generate(root);
   
   fclose(fp);
   return 0;
 }
 
-int yyerror(char *msg)
-{
-  printf("Error encountered: %s \n", msg);
+int yyerror(string msg){
+  printf("Error encountered:");
+  cout << msg << endl; return 0;
 }
 

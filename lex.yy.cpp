@@ -1,5 +1,6 @@
+#line 2 "lex.yy.cpp"
 
-#line 3 "lex.yy.c"
+#line 4 "lex.yy.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -498,8 +499,8 @@ char *yytext;
 #include <string.h>
 //extern char* yylval;
 int lexdbg = 0;
-#line 502 "lex.yy.c"
-#line 503 "lex.yy.c"
+#line 503 "lex.yy.cpp"
+#line 504 "lex.yy.cpp"
 
 #define INITIAL 0
 
@@ -719,7 +720,7 @@ YY_DECL
 #line 25 "philip.lex"
 
 
-#line 723 "lex.yy.c"
+#line 724 "lex.yy.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -951,7 +952,7 @@ YY_RULE_SETUP
 #line 65 "philip.lex"
 { if(lexdbg) printf("LEX : int_const\n");
 	yylval = new treeNode(Expression);
-	yylval->attr.op = EMPTY_;
+	yylval->op = EMPTY_;
 	int v = 0;
 	if(yytext[0] == '0'){
 		if(yytext[1] == 'x') sscanf(yytext, "%x", &v);
@@ -968,7 +969,7 @@ YY_RULE_SETUP
 #line 79 "philip.lex"
 ECHO;
 	YY_BREAK
-#line 972 "lex.yy.c"
+#line 973 "lex.yy.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 

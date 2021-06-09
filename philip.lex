@@ -64,7 +64,7 @@ id   [A-Za-z_][A-Za-z_0-9]*
 	}
 {int_const} { if(lexdbg) printf("LEX : int_const\n");
 	yylval = new treeNode(Expression);
-	yylval->attr.op = EMPTY_;
+	yylval->op = EMPTY_;
 	int v = 0;
 	if(yytext[0] == '0'){
 		if(yytext[1] == 'x') sscanf(yytext, "%x", &v);

@@ -15,7 +15,7 @@ int step_out(){
 	return SymTab[P].prefix;
 }
 
-int lookup(const char *n, int limited = 0, int func = 0){
+int lookup(const char *n, int limited, int func){
 	int P = currentSym;
 	if(limited){
 		while(SymTab[P].real == 0){
@@ -42,7 +42,7 @@ void opTable(int op){
 		case GR_:	printf(">"); return;
 		case EQEQ_:	printf("=="); return;
 		case NOEQ_:	printf("!="); return;
-		case ANDAD_:	printf("&&"); return;
+		case ANDAN_:	printf("&&"); return;
 		case OROR_:	printf("||"); return;
 		case NO_:	printf("!"); return;
 		case EQ_:	printf("="); return;
@@ -85,11 +85,11 @@ void typeTable(int type){
 void blanks(int level){ for(int i = 0; i < level; ++i) printf("  "); }
 
 void dbgprt(treeNode *node, int level){
-	int T = node->type;
+	int T = node->Type;
 	if(T & LinkedNode){
 		treeNode *pointer = node;
 		while(pointer != NULL){
-			if( !(pointer->type & 0x10) )
+			if( !(pointer->Type & 0x10) )
 				printf("generate:BinaryNode in Linked Tab");
 			
 			blanks(level); typeTable(pointer->Type);
@@ -135,11 +135,12 @@ void dbgprt(treeNode *node, int level){
 void generate(treeNode *node){
 	printf("generate function hasn't been finished yet\n"); return;
 	
+	int T = node->Type;
 	//deal with linked table heads
-	if(node->type & LinkedNode){
+	if(T & LinkedNode){
 		treeNode *pointer = node;
 		while(pointer != NULL){
-			if( !(pointer->type & 0x10) )
+			if( !(pointer->Type & 0x10) )
 				printf("generate:BinaryNode in Linked Tab");
 			generate(pointer->first);
 			pointer = pointer->last;
@@ -149,64 +150,64 @@ void generate(treeNode *node){
 	
 	//deal with binary nodes
 		//1. recursively	2. set bounds
-	if(node->type == Assignment){
+	if(T == Assignment){
 		
 		return;
 	}
 	
-	if(node->type == Declarate){
+	if(T == Declarate){
 		return;
 	}
 	
-	if(node->type == Define){ 
+	if(T == Define){ 
 		return;
 	}
 	
-	if(node->type == ParaDefine){
+	if(T == ParaDefine){
 		return;
 	}
 	
-	if(node->type == Expression){
+	if(T == Expression){
 		return;
 	}
 	
-	if(node->type == Condition){
+	if(T == Condition){
 		return;
 	}
 	
-	if(node->type == Object){
+	if(T == Object){
 		return;
 	}
 	
-	if(node->type == FuncDef){
+	if(T == FuncDef){
 		return;
 	}
 	
-	if(node->type == FuncCall){
+	if(T == FuncCall){
 		return;
 	}
 	
-	if(node->type == StmtBlock){
+	if(T == StmtBlock){
 		return;
 	}
 	
-	if(node->type == 0xB){ //Nothing Here
+	if(T == 0xB){ //Nothing Here
 		printf("undefined binary node type: 0xB"); return;
 	}
 	
-	if(node->type == If){
+	if(T == If){
 		return;
 	}
 	
-	if(node->type == Else){
+	if(T == Else){
 		return;
 	}
 	
-	if(node->type == Loop){
+	if(T == Loop){
 		return;
 	}
 	
-	if(node->type == Branch){
+	if(T == Branch){
 		return;
 	}
 	

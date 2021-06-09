@@ -40,9 +40,9 @@
 #define Index      0x16	//	first = constexp
 #define CompilUnit 0x17	//	first = decl/funcdef
 
-#define notRetu 0x0
-#define Retu    0x1
-#define RetuExp 0x3
+#define notFunc  0x0
+#define voidFunc 0x1
+#define intFunc  0x3
 
 #define b_return 0x1
 #define b_contin 0x2
@@ -61,6 +61,7 @@
 int labelCnt = 0;
 
 class treeNode{
+public:
 	treeNode *first;
 	treeNode *last;
 	int is_const = 0;
@@ -90,7 +91,7 @@ class treeNode{
 		if(first == NULL or last == NULL){
 			printf("treeNode:calc:with op but no 2 sons\n");
 		}
-		switch(attr.op){
+		switch(op){
 			case ADD_ : return first->calc() + last->calc();
 			case SUB_ : return first->calc() - last->calc();
 			case MUL_ : return first->calc() * last->calc();
@@ -115,6 +116,7 @@ int currentSymStack = 0;
 	
 
 class SymTabEntry{
+public:
 	int idx, prefix, real;
 	int is_func, is_const, is_ptr, szCnt, sz[MAXDIM]={0};
 	void modify(const char *n, int f=0, int c=0, int r=0,
@@ -126,15 +128,15 @@ class SymTabEntry{
 	}
 } SymTab[MAXSYMBOL];
 //first SymTabEntry is 0, without name, indicating the head of SymTab
-void initSymTab(){}
+void initSymTab();
 
-int step_out(){}
+int step_out();
 
-int lookup(const char *n, int limited = 0, int func = 0){}
+int lookup(const char *n, int limited = 0, int func = 0);
 
 // if(lookup(n,1) != -1) return -1;
 // SymTab[SymCnt].modify(n,f,c,r,......);
 
-void dbgprt(treeNode *node, int level){}
+void dbgprt(treeNode *node, int level);
 
-void generate(treeNode *node){}
+void generate(treeNode *node);
