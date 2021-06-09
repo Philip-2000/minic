@@ -491,8 +491,8 @@ int yy_flex_debug = 0;
 char *yytext;
 #line 1 "philip.lex"
 #line 2 "philip.lex"
-typedef char* string;
-#define YYSTYPE string
+#include "philip.hpp"
+#define YYSTYPE treeNode *
 #include "y.tab.h"
 #include <stdio.h>
 #include <string.h>
@@ -939,19 +939,36 @@ YY_RULE_SETUP
 case 33:
 YY_RULE_SETUP
 #line 59 "philip.lex"
-{ if(lexdbg) printf("LEX : id\n");yylval = strdup(yytext); return IDENT; }
+{ if(lexdbg) printf("LEX : id\n");
+	yylval = new treeNode(Object);
+	yylval->attr.n = strdup(yytext);
+		//store the name first and use the symtabid later(not now)
+	return IDENT; 
+	}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 60 "philip.lex"
-{ if(lexdbg) printf("LEX : int_const\n"); yylval = strdup(yytext); return INT_CONST; }
+#line 65 "philip.lex"
+{ if(lexdbg) printf("LEX : int_const\n");
+	yylval = new treeNode(Expression);
+	yylval->attr.op = EMPTY_;
+	int v = 0;
+	if(yytext[0] == '0'){
+		if(yytext[1] == 'x') sscanf(yytext, "%x", &v);
+		else sscanf(yytext, "%o", &v);
+	}
+	else sscanf(yytext, "%d", &v);
+	yylval->val = v; //put the value in yylval->val decimal;
+	
+	return INT_CONST;
+	}
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 62 "philip.lex"
+#line 79 "philip.lex"
 ECHO;
 	YY_BREAK
-#line 955 "lex.yy.c"
+#line 972 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1956,7 +1973,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 62 "philip.lex"
+#line 79 "philip.lex"
 
 
 //int main(){ yylex(); return 0; }

@@ -1,12 +1,12 @@
 %{
 #include <stdio.h>
 #include "philip.hpp"
-//typedef char* string;
 #define YYSTYPE treeNode *
 #define YYSTYPE_IS_DECLARED
 extern int yylex(void);
 extern int yyparse(void);
 FILE *fp = NULL;
+int yaccdbg = 1;
 %}
 %token INT_CONST IDENT IF ELSE WHILE CONTINUE BREAK CONST
 %token INT VOID RETURN LREQ GREQ EQEQ NOEQ ANDAND OROR EQ
@@ -17,8 +17,9 @@ FILE *fp = NULL;
 CompUnits     : CompUnit CompUnits {
 			$1->last = $2->first;
 			$$ = new treeNode();
-			$$->first = $1; deledte $2;
-		} 
+			$$->first = $1; delete $2;
+			root = $$; //?????will it work?
+		}
               | CompUnit {
 			$1->last = NULL;
 			$$ = new treeNode();
@@ -659,12 +660,12 @@ UnaryExp      : PrimaryExp{
 		};
 FuncRParams   : Exp COMMA FuncRParams{
 			$1->last = $3->first;
-			$$ = new treeNode();
+			$$ = new treeNode(Argument);
 			$$->first = $1; delete $3;
 		}
               | Exp{
               		$1->last = NULL;
-              		$$ = new treeNode();
+              		$$ = new treeNode(Argument);
               		$$->first = $1;
               	};
 MulExp        : UnaryExp MOD MulExp{
@@ -828,11 +829,13 @@ ConstExp      : AddExp{
 
 
 
-int main()
-{
+int main(){
   fp = fopen("./output.txt","w+"); fprintf(fp,"testing\n");
-  yyparse();
-  
+  treeNode *root = NULL;
+  yyparse(&root);
+  if(root == NULL) yyerror("yyparse error: didn't return a root");
+  if(yaccdbg) dbgprt(root);
+  generate(root);
   
   fclose(fp);
   return 0;

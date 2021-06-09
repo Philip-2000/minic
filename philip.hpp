@@ -125,7 +125,6 @@ class SymTabEntry{
 		for(int i = 0; i < SZCnt; ++i) sz[i]=SZ[i];
 	}
 } SymTab[MAXSYMBOL];
-
 //first SymTabEntry is 0, without name, indicating the head of SymTab
 void initSymTab(){}
 
@@ -134,4 +133,8 @@ int step_out(){}
 int lookup(const char *n, int limited = 0, int func = 0){}
 
 // if(lookup(n,1) != -1) return -1;
-// SymTab[SymCnt].modify(n,f,c,r,......); 
+// SymTab[SymCnt].modify(n,f,c,r,......);
+
+void dbgprt(treeNode *node, int level){}
+
+void generate(treeNode *node){}

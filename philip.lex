@@ -77,7 +77,5 @@ id   [A-Za-z_][A-Za-z_0-9]*
 	}
 
 %%
-
 //int main(){ yylex(); return 0; }
-
 int yywrap(){ return 1;  }
