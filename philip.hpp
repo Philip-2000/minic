@@ -58,7 +58,7 @@
 	//if labelOne:end of if, labelTwo:beginning of cond = true,
 	//loop labelOne:end of loop, labelTwo: beginning of loop
 
-int labelCnt = 0;
+extern int labelCnt;
 
 class treeNode{
 public:
@@ -103,12 +103,12 @@ public:
 	}
 };
 
-char *Names[MAXSYMBOL];
-int SymCnt = 0;
-int currentSym = 0;
+extern char *Names[MAXSYMBOL];
+extern int SymCnt;
+extern int currentSym;
 
-int SymStack[MAXSTACK] = {0};
-int currentSymStack = 0;
+extern int SymStack[MAXSTACK];
+extern int currentSymStack;
 	//blocks or funcs will push this stack
 	//the end of blocks will pop this stack and step out if defined
 	//if the stack is 0, and I define, I will change it to 1 and real
@@ -126,7 +126,10 @@ public:
 		is_func = f; is_const = c; real = r; szCnt = SZCnt;
 		for(int i = 0; i < SZCnt; ++i) sz[i]=SZ[i];
 	}
-} SymTab[MAXSYMBOL];
+};
+
+extern SymTabEntry SymTab[MAXSYMBOL];
+
 //first SymTabEntry is 0, without name, indicating the head of SymTab
 void initSymTab();
 

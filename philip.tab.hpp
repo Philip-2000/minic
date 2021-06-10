@@ -96,6 +96,6 @@ typedef int YYSTYPE;
 
 extern YYSTYPE yylval;
 
-int yyparse (void);
+int yyparse (treeNode *root);
 
 #endif /* !YY_YY_PHILIP_TAB_HPP_INCLUDED  */

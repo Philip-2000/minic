@@ -1,7 +1,8 @@
 %{
 #include "philip.hpp"
-#define YYSTYPE treeNode *
-#include "y.tab.h"
+#define YYSTYPE treeNode*
+#define YYSTYPE_IS_DECLARED 1
+#include "philip.tab.hpp"
 #include <stdio.h>
 #include <string.h>
 //extern char* yylval;

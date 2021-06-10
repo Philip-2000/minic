@@ -1,6 +1,19 @@
 #include "philip.hpp"
 
+int labelCnt;
+
+char *Names[MAXSYMBOL];
+int SymCnt = 0;
+int currentSym = 0;
+
+int SymStack[MAXSTACK] = {0};
+int currentSymStack = 0;
+
+SymTabEntry SymTab[MAXSYMBOL];
+
 void initSymTab(){
+	labelCnt = 0;
+	
 	SymTab[0].idx = 0;
 	SymTab[0].prefix = -1;
 	

@@ -1,31 +1,46 @@
 %{
+/*
+%union{ treeNode * a; }
+%type<a> CompUnit CompUnits Decl ConstDecl VarDecl VarDefs VarDef
+%type<a> BType ConstDefs ConstDef ConstExpAs ConstInitVal ConstInitVals
+%type<a> ConstExpA ConstExp ExpAs ExpA Exp InitVals InitVal FuncDef_pre
+%type<a> FuncFParams FuncFParam BlockItems BlockItem Stmt
+%type<a> FuncRParams AddExp MulExp Cond LOrExp LAndExp RelExp UnaryExp
+%type<a> PrimaryExp LVal EqExp FuncDef Block
+*/
 #include <iostream>
 #include "philip.hpp"
 #include <string>
 using namespace std;
-#define YYSTYPE treeNode *
-#define YYSTYPE_IS_DECLARED
-extern int yylex(void);
-extern int yyparse(void);
-extern int yyerror(string);
+#define YYSTYPE treeNode*
+#define YYSTYPE_IS_DECLARED 1
+extern int yylex(void); //extern int yyparse(treeNode*);
+void yyerror(treeNode*, string);
+void yyerror(string);
 FILE *fp = NULL;
+extern FILE *yyin;
+extern FILE *yyout;
 int yaccdbg = 1;
 %}
+
 %token INT_CONST IDENT IF ELSE WHILE CONTINUE BREAK CONST
 %token INT VOID RETURN LREQ GREQ EQEQ NOEQ ANDAND OROR EQ
 %token BRA KET BRAA KETT BRAAA KETTT COMMA SEMI
 %token ADD SUB MUL DIV MOD NO GR LR
+
 %start CompUnits
+%parse-param{treeNode *root}
 %%
 CompUnits     : CompUnit CompUnits {
 			$1->last = $2->first;
-			$$ = new treeNode();
+			root = new treeNode();
+			$$ = root;
 			$$->first = $1; delete $2;
-			root = $$; //?????will it work?
 		}
               | CompUnit {
 			$1->last = NULL;
-			$$ = new treeNode();
+			root = new treeNode();
+			$$ = root;
 			$$->first = $1;
 		};
 CompUnit      : Decl {
@@ -843,10 +858,11 @@ ConstExp      : AddExp{
 %%
 
 int main(){
-  fp = fopen("./output.txt","w+"); fprintf(fp,"testing\n");
+  fp = fopen("./input.txt","r"); yyin = fp;
+  
   treeNode *root = NULL;
   initSymTab();
-  yyparse(&root);
+  yyparse(root);
   if(root == NULL) yyerror("yyparse error: didn't return a root");
   if(yaccdbg) dbgprt(root,0);
   generate(root);
@@ -855,8 +871,13 @@ int main(){
   return 0;
 }
 
-int yyerror(string msg){
+void yyerror(string msg){
   printf("Error encountered:");
-  cout << msg << endl; return 0;
+  cout << msg << endl;
+}
+
+void yyerror(treeNode *ptr, string msg){
+  printf("Error encountered:");
+  cout << msg << endl;
 }
 

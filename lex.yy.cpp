@@ -493,14 +493,15 @@ char *yytext;
 #line 1 "philip.lex"
 #line 2 "philip.lex"
 #include "philip.hpp"
-#define YYSTYPE treeNode *
-#include "y.tab.h"
+#define YYSTYPE treeNode*
+#define YYSTYPE_IS_DECLARED 1
+#include "philip.tab.hpp"
 #include <stdio.h>
 #include <string.h>
 //extern char* yylval;
 int lexdbg = 0;
-#line 503 "lex.yy.cpp"
 #line 504 "lex.yy.cpp"
+#line 505 "lex.yy.cpp"
 
 #define INITIAL 0
 
@@ -717,10 +718,10 @@ YY_DECL
 		}
 
 	{
-#line 25 "philip.lex"
+#line 26 "philip.lex"
 
 
-#line 724 "lex.yy.cpp"
+#line 725 "lex.yy.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -779,167 +780,167 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 27 "philip.lex"
+#line 28 "philip.lex"
 { if(lexdbg) printf("LEX : if\n"); return IF;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 28 "philip.lex"
+#line 29 "philip.lex"
 { if(lexdbg) printf("LEX : else\n"); return ELSE;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 29 "philip.lex"
+#line 30 "philip.lex"
 { if(lexdbg) printf("LEX : while\n"); return WHILE;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 30 "philip.lex"
+#line 31 "philip.lex"
 { if(lexdbg) printf("LEX : continue\n"); return CONTINUE;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 31 "philip.lex"
+#line 32 "philip.lex"
 { if(lexdbg) printf("LEX : break\n"); return BREAK;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 32 "philip.lex"
+#line 33 "philip.lex"
 { if(lexdbg) printf("LEX : const\n");return CONST;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 33 "philip.lex"
+#line 34 "philip.lex"
 { if(lexdbg) printf("LEX : int\n");return INT;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 34 "philip.lex"
+#line 35 "philip.lex"
 { if(lexdbg) printf("LEX : void\n"); return VOID; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 35 "philip.lex"
+#line 36 "philip.lex"
 { if(lexdbg) printf("LEX : return\n"); return RETURN;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 36 "philip.lex"
+#line 37 "philip.lex"
 { if(lexdbg) printf("LEX : <=\n"); return LREQ;}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 37 "philip.lex"
+#line 38 "philip.lex"
 { if(lexdbg) printf("LEX : >=\n"); return GREQ;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 38 "philip.lex"
+#line 39 "philip.lex"
 { if(lexdbg) printf("LEX : ==\n"); return EQEQ;}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 39 "philip.lex"
+#line 40 "philip.lex"
 { if(lexdbg) printf("LEX : !=\n"); return NOEQ;}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 40 "philip.lex"
+#line 41 "philip.lex"
 { if(lexdbg) printf("LEX : &&\n"); return ANDAND;}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 41 "philip.lex"
+#line 42 "philip.lex"
 { if(lexdbg) printf("LEX : ||\n"); return OROR;}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 42 "philip.lex"
+#line 43 "philip.lex"
 { if(lexdbg) printf("LEX : eq\n"); return EQ; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 43 "philip.lex"
+#line 44 "philip.lex"
 { if(lexdbg) printf("LEX : (\n"); return BRA; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 44 "philip.lex"
+#line 45 "philip.lex"
 { if(lexdbg) printf("LEX : )\n"); return KET; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 45 "philip.lex"
+#line 46 "philip.lex"
 { if(lexdbg) printf("LEX : [\n"); return BRAA; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 46 "philip.lex"
+#line 47 "philip.lex"
 { if(lexdbg) printf("LEX : ]\n"); return KETT; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 47 "philip.lex"
+#line 48 "philip.lex"
 { if(lexdbg) printf("LEX : {\n"); return BRAAA; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 48 "philip.lex"
+#line 49 "philip.lex"
 { if(lexdbg) printf("LEX : }\n"); return KETTT; }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 49 "philip.lex"
+#line 50 "philip.lex"
 { if(lexdbg) printf("LEX : +\n"); return ADD;}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 50 "philip.lex"
+#line 51 "philip.lex"
 { if(lexdbg) printf("LEX : -\n"); return SUB;}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 51 "philip.lex"
+#line 52 "philip.lex"
 { if(lexdbg) printf("LEX : *\n"); return MUL;}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 52 "philip.lex"
+#line 53 "philip.lex"
 { if(lexdbg) printf("LEX : /\n"); return DIV;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 53 "philip.lex"
+#line 54 "philip.lex"
 { if(lexdbg) printf("LEX : MOD\n"); return MOD;}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 54 "philip.lex"
+#line 55 "philip.lex"
 { if(lexdbg) printf("LEX : !\n"); return NO;}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 55 "philip.lex"
+#line 56 "philip.lex"
 { if(lexdbg) printf("LEX : ,\n"); return COMMA;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 56 "philip.lex"
+#line 57 "philip.lex"
 { if(lexdbg) printf("LEX : ;\n"); return SEMI;}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 57 "philip.lex"
+#line 58 "philip.lex"
 { if(lexdbg) printf("LEX : >\n"); return GR;}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 58 "philip.lex"
+#line 59 "philip.lex"
 { if(lexdbg) printf("LEX : <\n"); return LR;}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 59 "philip.lex"
+#line 60 "philip.lex"
 { if(lexdbg) printf("LEX : id\n");
 	yylval = new treeNode(Object);
 	yylval->attr.n = strdup(yytext);
@@ -949,7 +950,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 65 "philip.lex"
+#line 66 "philip.lex"
 { if(lexdbg) printf("LEX : int_const\n");
 	yylval = new treeNode(Expression);
 	yylval->op = EMPTY_;
@@ -966,10 +967,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 79 "philip.lex"
+#line 80 "philip.lex"
 ECHO;
 	YY_BREAK
-#line 973 "lex.yy.cpp"
+#line 974 "lex.yy.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1974,7 +1975,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 79 "philip.lex"
+#line 80 "philip.lex"
 
 //int main(){ yylex(); return 0; }
 int yywrap(){ return 1;  }
