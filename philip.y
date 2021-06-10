@@ -50,10 +50,10 @@ CompUnit      : Decl {
 			$$ = new treeNode(CompilUnit);
 			$$->first = $1->first; delete $1;
 		}
-              | FuncDef{
+/*              | FuncDef{
 			$$ = new treeNode(CompilUnit);
 			$$->first = $1;
-		};
+		}*/;
 
 Decl          : ConstDecl {
 			$$ = new treeNode();
@@ -126,7 +126,7 @@ ConstDef      : IDENT ConstExpAs{
 			SymTab[SymCnt].modify(N,0,1,!R);
 			SymStack[currentSymStack] = 1;
 			$1->attr.idx = currentSym;
-			printf("FLAG!");
+			
               	} EQ ConstInitVal{
               		//error if the size is wrong
               		if(($4->first)->Type != Expression ||
@@ -209,7 +209,7 @@ VarDef        : IDENT ConstExpAs {
 		}
               | IDENT {
               		//define this IDENT
-              		
+              		printf("FLAG!");
               			//first check if it is defined
               		char *N = strdup($1->attr.n);
               		if(lookup(N,1) != -1) yyerror("symbol re-defined");
@@ -263,7 +263,7 @@ VarDef        : IDENT ConstExpAs {
 		}
               | IDENT{
               		//define this IDENT
-              		
+              		printf("FLAG!");
               			//first check if it is defined
               		char *N = strdup($1->attr.n);
               		if(lookup(N,1) != -1) yyerror("symbol re-defined");
@@ -344,6 +344,7 @@ FuncDef_pre   : VOID IDENT{
 			$$ = new treeNode();
 			$$->attr.idx = currentSym;
 			delete $2;
+			printf("FLAG!");
               	};
 
 FuncDef       : FuncDef_pre BRA KET Block {
