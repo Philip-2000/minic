@@ -2,7 +2,7 @@
 /*
 %union{ treeNode * a; }
 %type<a> CompUnit CompUnits Decl ConstDecl VarDecl VarDefs VarDef
-%type<a> BType ConstDefs ConstDef ConstExpAs ConstInitVal ConstInitVals
+%type<a> ConstDefs ConstDef ConstExpAs ConstInitVal ConstInitVals
 %type<a> ConstExpA ConstExp ExpAs ExpA Exp InitVals InitVal FuncDef_pre
 %type<a> FuncFParams FuncFParam BlockItems BlockItem Stmt
 %type<a> FuncRParams AddExp MulExp Cond LOrExp LAndExp RelExp UnaryExp
@@ -14,7 +14,8 @@
 using namespace std;
 #define YYSTYPE treeNode*
 #define YYSTYPE_IS_DECLARED 1
-extern int yylex(void); //extern int yyparse(treeNode*);
+extern int yylex(void); 
+extern int yyparse(treeNode*);
 void yyerror(treeNode*, string);
 void yyerror(string);
 FILE *fp = NULL;
@@ -32,12 +33,14 @@ int yaccdbg = 1;
 %parse-param{treeNode *root}
 %%
 CompUnits     : CompUnit CompUnits {
+			printf("CompUnit\n");
 			$1->last = $2->first;
 			root = new treeNode();
 			$$ = root;
 			$$->first = $1; delete $2;
 		}
               | CompUnit {
+                       printf("CompUnit\n");
 			$1->last = NULL;
 			root = new treeNode();
 			$$ = root;
@@ -60,12 +63,11 @@ Decl          : ConstDecl {
 			$$ = new treeNode();
 			$$->first = $1;
 		};
-ConstDecl     : CONST BType ConstDefs SEMI{
+ConstDecl     : CONST INT ConstDefs SEMI{
 			$$ = new treeNode(Declarate);
 			$$->is_const = 1;
 			$$->first = $2;
 		};
-BType         : INT;
 ConstDefs     : ConstDef COMMA ConstDefs{
 			$1->last = $3->first;
 			$$ = new treeNode();
@@ -124,7 +126,7 @@ ConstDef      : IDENT ConstExpAs{
 			SymTab[SymCnt].modify(N,0,1,!R);
 			SymStack[currentSymStack] = 1;
 			$1->attr.idx = currentSym;
-			
+			printf("FLAG!");
               	} EQ ConstInitVal{
               		//error if the size is wrong
               		if(($4->first)->Type != Expression ||
@@ -157,7 +159,7 @@ ConstInitVal  : ConstExp{
 			$$ = new treeNode(Values);
 			$$->first = NULL;
               	};
-VarDecl       : BType VarDefs SEMI{
+VarDecl       : INT VarDefs SEMI{
 			$$ = new treeNode(Declarate);
 			$$->is_const = 0;
 			$$->first = $2;
@@ -391,7 +393,7 @@ FuncFParams   : FuncFParam COMMA FuncFParams{
               		$$ = new treeNode();
               		$$->first = $1;
               	};
-FuncFParam    : BType IDENT BRAA KETT ConstExpAs{
+FuncFParam    : INT IDENT BRAA KETT ConstExpAs{
 			//define this IDENT;
 			
 				//first check if it is defined
@@ -419,7 +421,7 @@ FuncFParam    : BType IDENT BRAA KETT ConstExpAs{
 			$$->first = $5;
 			$$->attr.idx = currentSym;
 		}
-              | BType IDENT BRAA KETT{
+              | INT IDENT BRAA KETT{
               		//define this IDENT
               		
               			//first check if it is defined
@@ -437,7 +439,7 @@ FuncFParam    : BType IDENT BRAA KETT ConstExpAs{
               		$$->first = NULL;
               		$$->attr.idx = currentSym;
               	}
-              | BType IDENT{
+              | INT IDENT{
               		//define this IDENT
               		
               			//first check if it is defined
@@ -681,7 +683,7 @@ UnaryExp      : PrimaryExp{
 			$$->last = $2;
 			$$->is_const = $2->is_const;
 		}
-              |  NO PrimaryExp{
+              | NO PrimaryExp{
 			$$ = new treeNode(Expression);
 			$$->first = NULL;
 			$$->op = NO_;

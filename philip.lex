@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 //extern char* yylval;
-int lexdbg = 0;
+int lexdbg = 1;
 %}
 
 digit  [0-9]
