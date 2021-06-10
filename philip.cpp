@@ -16,6 +16,7 @@ void initSymTab(){
 	
 	SymTab[0].idx = 0;
 	SymTab[0].prefix = -1;
+	SymTab[0].real = 1;
 	
 	SymCnt = 1;
 	currentSym = 0;
@@ -30,6 +31,7 @@ int step_out(){
 
 int lookup(const char *n, int limited, int func){
 	int P = currentSym;
+	if(P == 0) return -1;
 	if(limited){
 		while(SymTab[P].real == 0){
 			if(strcmp(Names[P], n) == 0 && 

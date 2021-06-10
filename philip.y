@@ -11,6 +11,7 @@
 #include <iostream>
 #include "philip.hpp"
 #include <string>
+#include <stdlib.h>
 using namespace std;
 #define YYSTYPE treeNode*
 #define YYSTYPE_IS_DECLARED 1
@@ -33,27 +34,31 @@ int yaccdbg = 1;
 %parse-param{treeNode *root}
 %%
 CompUnits     : CompUnit CompUnits {
-			printf("CompUnit\n");
-			$1->last = $2->first;
-			root = new treeNode();
-			$$ = root;
-			$$->first = $1; delete $2;
+			printf("CompUnit2\n");
+			//$1->last = $2->first;
+			//root = new treeNode();
+			//$$ = root;
+			//$$->first = $1; delete $2;
+			root->first = $1->first;
+			root->last = $2->first;
 		}
               | CompUnit {
-                       printf("CompUnit\n");
-			$1->last = NULL;
-			root = new treeNode();
-			$$ = root;
-			$$->first = $1;
+                       printf("CompUnit1\n");
+			//$1->last = NULL;
+			//treeNode *p = new treeNode();
+			//$$ = p; root = p;
+			//$$->first = $1;
+			root->first = $1->first;
+			root->last = NULL;
 		};
 CompUnit      : Decl {
 			$$ = new treeNode(CompilUnit);
 			$$->first = $1->first; delete $1;
 		}
-/*              | FuncDef{
+              | FuncDef{
 			$$ = new treeNode(CompilUnit);
 			$$->first = $1;
-		}*/;
+		};
 
 Decl          : ConstDecl {
 			$$ = new treeNode();
@@ -69,16 +74,15 @@ ConstDecl     : CONST INT ConstDefs SEMI{
 			$$->first = $2;
 		};
 ConstDefs     : ConstDef COMMA ConstDefs{
-			$1->last = $3->first;
-			$$ = new treeNode();
-			$$->first = $1; delete $3;
+			$$ = new treeNode(Definition);
+			$$->first = $1;
+			$$->last = $3;
 		}
-              | ConstDef{
-              		$1->last = NULL;
-              		$$ = new treeNode();
-              		$$->first = $1;
+              | ConstDef {
+              		$$ = new treeNode(Definition);
+              		$$->first = $1; $$->last = NULL;
               	};
-ConstDef      : IDENT ConstExpAs{
+ConstDef      : IDENT ConstExpAs EQ ConstInitVal{
 			//define this IDENT;
 			
 				//first check if it is defined
@@ -101,7 +105,6 @@ ConstDef      : IDENT ConstExpAs{
 			SymStack[currentSymStack] = 1;
 			$1->attr.idx = currentSym;
 			
-		} EQ ConstInitVal{
 			//error if the size is wrong
 			
 			
@@ -114,7 +117,7 @@ ConstDef      : IDENT ConstExpAs{
 			$$->is_const = 1;
 			$$->first = $2;  $$->last = $4;
 		}
-              | IDENT {
+              | IDENT EQ ConstInitVal{
               		//define this IDENT
               		
               			//first check if it is defined
@@ -127,10 +130,9 @@ ConstDef      : IDENT ConstExpAs{
 			SymStack[currentSymStack] = 1;
 			$1->attr.idx = currentSym;
 			
-              	} EQ ConstInitVal{
               		//error if the size is wrong
-              		if(($4->first)->Type != Expression ||
-              			$4->last != NULL)
+              		if(($3->first)->Type != Expression ||
+              			$3->last != NULL)
               			yyerror("vector on scaler");
               		
      			$$ = new treeNode(Define);
@@ -165,17 +167,14 @@ VarDecl       : INT VarDefs SEMI{
 			$$->first = $2;
 		};
 VarDefs       : VarDef COMMA VarDefs{
-			$1->last = $3->first;
-			$$ = new treeNode();
-			$$->first = $1;
-			delete $3;
+			$$ = new treeNode(Definition);
+			$$->first = $1; $$->last = $3;
 		}
-              | VarDef{
-              		$1->last = NULL;
-              		$$ = new treeNode();
-              		$$->first = $1;
+              | VarDef {
+              		$$ = new treeNode(Definition);
+              		$$->first = $1; $$->last = NULL;
               	};
-VarDef        : IDENT ConstExpAs {
+VarDef        : IDENT ConstExpAs EQ InitVal{
 			//define this IDENT;
 			
 				//first check if it is defined
@@ -198,7 +197,6 @@ VarDef        : IDENT ConstExpAs {
 			SymStack[currentSymStack] = 1;
 			$1->attr.idx = currentSym;
 			
-		}EQ InitVal{
 			//hang CEAs under IDENT as obj
 			$1->first = $2->first; //index linked table head
 			delete $2;
@@ -207,25 +205,21 @@ VarDef        : IDENT ConstExpAs {
 			$$->is_const = 0;
 			$$->first = $1;  $$->last = $4;
 		}
-              | IDENT {
+              | IDENT EQ InitVal{
               		//define this IDENT
-              		printf("FLAG!");
+              		//printf("FLAG!\n");
               			//first check if it is defined
               		char *N = strdup($1->attr.n);
               		if(lookup(N,1) != -1) yyerror("symbol re-defined");
-              		
               			//define it
               		int R = SymStack[currentSymStack];
 			SymTab[SymCnt].modify(N,0,0,!R);
 			SymStack[currentSymStack] = 1;
 			$1->attr.idx = currentSym;
-			
-              	} EQ InitVal{
               		//error if the size is wrong
-              		if(($4->first)->Type != Expression ||
-              			$4->last != NULL)
+              		if(($3->first)->Type != Expression ||
+              			$3->last != NULL)
               			yyerror("vector on scaler");
-              
 			$$ = new treeNode(Define);
 			$$->is_const = 0;
 			$$->first = $1;  $$->last = $3;
@@ -263,7 +257,7 @@ VarDef        : IDENT ConstExpAs {
 		}
               | IDENT{
               		//define this IDENT
-              		printf("FLAG!");
+              		//printf("FLAG!");
               			//first check if it is defined
               		char *N = strdup($1->attr.n);
               		if(lookup(N,1) != -1) yyerror("symbol re-defined");
@@ -344,7 +338,7 @@ FuncDef_pre   : VOID IDENT{
 			$$ = new treeNode();
 			$$->attr.idx = currentSym;
 			delete $2;
-			printf("FLAG!");
+			//printf("FLAG!");
               	};
 
 FuncDef       : FuncDef_pre BRA KET Block {
@@ -863,24 +857,25 @@ ConstExp      : AddExp{
 int main(){
   fp = fopen("./input.txt","r"); yyin = fp;
   
-  treeNode *root = NULL;
+  treeNode root(CompilUnit);
   initSymTab();
-  yyparse(root);
-  if(root == NULL) yyerror("yyparse error: didn't return a root");
-  if(yaccdbg) dbgprt(root,0);
-  generate(root);
+  yyparse(&root);
+  printf("yyparse over\n");
+  //if(root == NULL) yyerror("yyparse error: didn't return a root");
+  if(yaccdbg) dbgprt(&root,0);
+  generate(&root);
   
   fclose(fp);
   return 0;
 }
 
 void yyerror(string msg){
-  printf("Error encountered:");
-  cout << msg << endl;
+  printf("Error encountered: ");
+  cout << msg << endl; exit(-1);
 }
 
 void yyerror(treeNode *ptr, string msg){
-  printf("Error encountered:");
-  cout << msg << endl;
+  printf("Error encountered: ");
+  cout << msg << endl; exit(-1);
 }
 
