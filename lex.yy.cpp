@@ -499,7 +499,7 @@ char *yytext;
 #include <stdio.h>
 #include <string.h>
 //extern char* yylval;
-int lexdbg = 1;
+int lexdbg = 0;
 #line 504 "lex.yy.cpp"
 #line 505 "lex.yy.cpp"
 

@@ -105,7 +105,7 @@ void dbgprt(treeNode *node, int level){
 		treeNode *pointer = node;
 		while(pointer != NULL){
 			if( !(pointer->Type & 0x10) )
-				printf("generate:BinaryNode in Linked Tab");
+				printf("dbgprt:BinaryNode in Linked Tab");
 			
 			blanks(level); typeTable(pointer->Type);
 			printf("\n"); dbgprt(pointer->first, level+1);
@@ -143,8 +143,30 @@ void dbgprt(treeNode *node, int level){
 	}
 	
 	//recursive
-	printf("\n"); if(node->first != NULL) dbgprt(node->first, level+1);
-	printf("\n"); if(node->last  != NULL) dbgprt(node->last,  level+1);
+	if(node->first != NULL){
+		while(node->first->Type == Expression){
+			if(node->first->val == -1 && node->first->op == 0){
+				treeNode *tmp = node->first;
+				node->first = node->first->first;
+				delete tmp;
+			}
+			else break;
+		}
+		printf("\n");
+		dbgprt(node->first,level+1);
+	}
+	if(node->last  != NULL){
+		while(node->last->Type == Expression){
+			if(node->last->val == -1 && node->last->op == 0){
+				treeNode *tmp = node->last;
+				node->last = node->last->first;
+				delete tmp;
+			}
+			else break;
+		}
+		printf("\n");
+		dbgprt(node->last, level+1);
+	}
 }
 
 void generate(treeNode *node){

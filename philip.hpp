@@ -23,7 +23,7 @@
 #define Expression 0x05	//op	
 #define Condition  0x06	//op	
 #define Object     0x07	//name	first = indices, last = NULL
-#define FuncDef    0x08	//name	first = listIt, last = body
+#define FuncDef    0x08	//name	first = listIt, last = StmtBlock
 #define FuncCall   0x09	//name	first = listIt, last = NULL
 #define StmtBlock  0x0A	//	first = blockIt, last = NULL
 #define If         0x0C	//	first = cond, last = stmts/else
@@ -140,6 +140,6 @@ int lookup(const char *n, int limited = 0, int func = 0);
 // if(lookup(n,1) != -1) return -1;
 // SymTab[SymCnt].modify(n,f,c,r,......);
 
-void dbgprt(treeNode *node, int level);
+void dbgprt(treeNode *node, int level = 0);
 
 void generate(treeNode *node);

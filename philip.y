@@ -1,13 +1,4 @@
 %{
-/*
-%union{ treeNode * a; }
-%type<a> CompUnit CompUnits Decl ConstDecl VarDecl VarDefs VarDef
-%type<a> ConstDefs ConstDef ConstExpAs ConstInitVal ConstInitVals
-%type<a> ConstExpA ConstExp ExpAs ExpA Exp InitVals InitVal FuncDef_pre
-%type<a> FuncFParams FuncFParam BlockItems BlockItem Stmt
-%type<a> FuncRParams AddExp MulExp Cond LOrExp LAndExp RelExp UnaryExp
-%type<a> PrimaryExp LVal EqExp FuncDef Block
-*/
 #include <iostream>
 #include "philip.hpp"
 #include <string>
@@ -34,22 +25,17 @@ int yaccdbg = 1;
 %parse-param{treeNode *root}
 %%
 CompUnits     : CompUnit CompUnits {
-			printf("CompUnit2\n");
-			//$1->last = $2->first;
-			//root = new treeNode();
-			//$$ = root;
-			//$$->first = $1; delete $2;
-			root->first = $1->first;
-			root->last = $2->first;
+			$$ = new treeNode();
+			$$->first = $1;
+			$1->last = $2->first;
+
+			root->first = $1;
 		}
               | CompUnit {
-                       printf("CompUnit1\n");
-			//$1->last = NULL;
-			//treeNode *p = new treeNode();
-			//$$ = p; root = p;
-			//$$->first = $1;
-			root->first = $1->first;
-			root->last = NULL;
+              		$$ = new treeNode();
+              		$$->first = $1;
+              		$$->last = NULL;
+			root->first = $1;
 		};
 CompUnit      : Decl {
 			$$ = new treeNode(CompilUnit);
@@ -71,12 +57,11 @@ Decl          : ConstDecl {
 ConstDecl     : CONST INT ConstDefs SEMI{
 			$$ = new treeNode(Declarate);
 			$$->is_const = 1;
-			$$->first = $2;
+			$$->first = $3;
 		};
 ConstDefs     : ConstDef COMMA ConstDefs{
 			$$ = new treeNode(Definition);
-			$$->first = $1;
-			$$->last = $3;
+			$$->first = $1; $$->last = $3;
 		}
               | ConstDef {
               		$$ = new treeNode(Definition);
@@ -155,7 +140,7 @@ ConstInitVal  : ConstExp{
 		}
               | BRAAA ConstInitVals KETTT{
 			$$ = new treeNode(Values);
-			$$->first = $2;
+			$$->first = $2->first; delete $2;
               	}
               | BRAAA KETTT{
 			$$ = new treeNode(Values);
@@ -207,7 +192,6 @@ VarDef        : IDENT ConstExpAs EQ InitVal{
 		}
               | IDENT EQ InitVal{
               		//define this IDENT
-              		//printf("FLAG!\n");
               			//first check if it is defined
               		char *N = strdup($1->attr.n);
               		if(lookup(N,1) != -1) yyerror("symbol re-defined");
@@ -288,7 +272,7 @@ InitVal       : Exp{
 		}
               | BRAAA InitVals KETTT{
 			$$ = new treeNode(Values);
-			$$->first = $2;
+			$$->first = $2->first; delete $2;
               	}
               | BRAAA KETTT{
 			$$ = new treeNode(Values);
@@ -342,11 +326,10 @@ FuncDef_pre   : VOID IDENT{
               	};
 
 FuncDef       : FuncDef_pre BRA KET Block {
-			
 			$$ = new treeNode(FuncDef);
 			$$->first = NULL;
 			$$->last = $4;
-			$$->attr.idx = currentSym;
+			$$->attr.idx = $1->attr.idx;
 			
 			if(SymStack[currentSymStack] == 1)
 				currentSym = step_out();
@@ -368,8 +351,8 @@ FuncDef       : FuncDef_pre BRA KET Block {
 			
               		$$ = new treeNode(FuncDef);
 			$$->first = $3->first; delete $3;
-			$$->last = $5;
-			$$->attr.idx = currentSym;
+			$$->last = $6;
+			$$->attr.idx = $1->attr.idx;
 			
 			if(SymStack[currentSymStack] == 1)
 				currentSym = step_out();
@@ -454,9 +437,11 @@ FuncFParam    : INT IDENT BRAA KETT ConstExpAs{
               	};
 
 Block         : BRAAA { ++currentSymStack; } BlockItems KETTT{
-			$$ = new treeNode();
-			$$->first = $2->first;
-			delete $2;
+			printf("Block FLAG!\n");
+
+			$$ = new treeNode(StmtBlock);
+			$$->first = $3->first;
+			delete $3;
 			
 			
 			
@@ -465,7 +450,7 @@ Block         : BRAAA { ++currentSymStack; } BlockItems KETTT{
 			--currentSymStack;
 		}
               | BRAAA { ++currentSymStack; } KETTT{
-              		$$ = new treeNode();
+              		$$ = new treeNode(StmtBlock);
               		$$->first = NULL; //same as above to avoid conflict
               		if(SymStack[currentSymStack] == 1)
 				currentSym = step_out();
@@ -479,14 +464,15 @@ BlockItems    : BlockItem BlockItems{
               | BlockItem{
               		$1->last = NULL;
               		$$ = new treeNode();
+              		$$->attr.idx = 1024;
               		$$->first = $1;
               	};
 BlockItem     : Decl{
-			$$ = new treeNode();
+			$$ = new treeNode(BlockIt);
 			$$->first = $1->first; delete $1;
 		}
 	      | Stmt{
-	      		$$ = new treeNode();
+	      		$$ = new treeNode(BlockIt);
 	      		$$->first = $1;
 	      	};
 Stmt          : LVal EQ Exp SEMI{
@@ -859,11 +845,11 @@ int main(){
   
   treeNode root(CompilUnit);
   initSymTab();
+  printf("yyparse start\n");
   yyparse(&root);
   printf("yyparse over\n");
-  //if(root == NULL) yyerror("yyparse error: didn't return a root");
-  if(yaccdbg) dbgprt(&root,0);
-  generate(&root);
+  if(yaccdbg) dbgprt(root.first);
+  generate(root.first);
   
   fclose(fp);
   return 0;
