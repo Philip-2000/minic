@@ -851,14 +851,14 @@ int main(){
   initSymTab();
   printf("yyparse start\n");
   yyparse(&root);
-  printf("yyparse over\n");
+  printf("yyparse over\ndbgprt start\n");
   scanSymTab();
   dbgprt(root.first);
   if(mainIdx == -1) yyerror("main function undefined");
-  yyout = stdout;
+  printf("dbgprt over\ngenerate start\n");
   generate(root.first);
   
-  fclose(fp);
+  if(yaccdbg == 0) fclose(fp);
   return 0;
 }
 

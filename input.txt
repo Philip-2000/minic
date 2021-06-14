@@ -1,8 +1,8 @@
 const int vdwwe = 5;
 int fwew = 6;
-int wefa[10+1] = {1,3,5,0};
+int wefa[10] = {1,3,5,0};
 int abc(){
-	int k = 1;
+	int k = 1, b = 2;
 	int kk[20] = {5,4,3,2,1};
 	if(k == 2){
 		kk[k] = kk[vdwwe +1];

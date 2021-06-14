@@ -85,7 +85,6 @@ public:
 	union Attr{
 		int idx;
 		char *n;
-		//destination : though I don't know how to code now
 	}attr;
 	int Type = 0;
 	treeNode(int type = 0){ Type = type; }

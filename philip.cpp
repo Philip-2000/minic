@@ -24,7 +24,7 @@ bool TempSym[32] = {0};
 int maxTmpSym = -1;
 int getTmpSym(){
 	int ret = 0;
-	while(TempSym[ret] || ret < 32) ++ret;
+	while(TempSym[ret] && ret < 32) ++ret;
 	if(ret == 32) return -1;
 	TempSym[ret] = 1; if(ret > maxTmpSym) maxTmpSym = ret;
 	return ret;
@@ -176,6 +176,32 @@ void typeTable(int type){
 
 void blanks(int level){ for(int i = 0; i < level; ++i) printf("  "); }
 
+int bound = -1;
+char arrSym[10] = "";
+void fill_in(treeNode *node, int *sz, int level, int length, int base){
+	int pos = base;
+	int step = length / sz[level];
+	treeNode *pointer = node;
+	char var[10] = "";
+	while(pointer != NULL){
+		if(pointer->first->Type != Values){
+			//one object or expression
+			generate(pointer->first, var);
+			fprintf(fp,"%s[%d] = %s\n", arrSym, pos*4, var);
+			++pos;
+		}else{
+			//still linked table
+			if(level+1 >= bound){
+				printf("too many dimensions\n"); return;}
+			pos = (pos+step)/step - 1;//ceil(pos)
+			fill_in(pointer->first, sz, level+1, step, pos);
+			pos += step;
+		}
+		if(pos > base+length){printf("out of bound\n"); return;}
+		pointer = pointer->last;
+	}
+}
+
 void dbgprt(treeNode *node, int level, int *var){
 	int T = node->Type;
 	int *varFirst = NULL, *varLast = NULL;
@@ -201,22 +227,45 @@ void dbgprt(treeNode *node, int level, int *var){
 				else break;
 			}
 			dbgprt(pointer->first, level+1, varFirst);
-			if(T == Index){ TempSym[*varFirst] = 0; }
+			if(T == Index && varFirst != NULL)
+				TempSym[*varFirst] = 0;
 			printf("\n");
 			pointer = pointer->last;
 		}
 		return;
 	}
 	
+	
+	if(T == Define){
+		if(cft_valid == 1){
+			if(node->last != NULL){
+				node->Type = Assignment; T = Assignment;
+				node->is_ptr = 1; //to initialize
+			}
+			else{
+				delete node;
+				return;
+			}
+		}
+	}
+	
 	blanks(level); typeTable(T);
 	//information about this node
-	if(T == Define || T == Declarate){
+	if(T == Declarate){
+		if(node->is_const == 1) printf(" is const");
+	}
+	if(T == Define){
 		if(node->is_const == 1) printf(" is const");
 	}
 	if(T > 6 && T < 10){ //Object, FuncDef & FuncCall
 		printf(" idx: %d", node->attr.idx);
 		if(strcmp(Names[node->attr.idx],"main") == 0)
 			mainIdx = node->attr.idx;
+		if(T == FuncDef){
+			currentFuncIdx = node->attr.idx;
+			currentFuncType = SymTab[currentFuncIdx].is_func;
+			cft_valid = 1;
+		}
 	}
 	if(T == ParaDefine){
 		printf(" idx: %d", node->attr.idx);
@@ -224,13 +273,17 @@ void dbgprt(treeNode *node, int level, int *var){
 	}
 	if(T == If){
 	printf(" end_if: %d begin_true: %d",node->end_if,node->begin_true);
+		varFirst = new int;
 	}
 	if(T == Loop){
 		printf(" end_loop: %d begin_loop: %d",
 		node->end_loop, node->begin_loop);
+		varFirst = new int;
 	}
 	if(T == Expression){
-		if(node->val != -1) printf(" value %d", node->val);
+		if(node->val != -1) {
+			printf(" value %d\n", node->val);
+		}
 		else if( node->op != EMPTY_ ) {
 			printf(" op: "); opTable(node->op);
 			varFirst = new int; varLast = new int;
@@ -266,20 +319,30 @@ void dbgprt(treeNode *node, int level, int *var){
 	
 	//distribute a temperal Symbol for expression
 	if(T == Expression && node->op != EMPTY_){
-		node->attr.idx = getTmpSym();
-		TempSym[*varFirst] = 0; TempSym[*varLast] = 0;
-		*var = node->attr.idx;
+		if(var != NULL) {
+			node->attr.idx = getTmpSym();
+			*var = node->attr.idx;
+		}
+		if(varFirst != NULL) TempSym[*varFirst] = 0;
+		if(varLast  != NULL) TempSym[*varLast]  = 0;
 	}
 	if(T == Assignment){
 		if(varFirst != NULL) TempSym[*varFirst] = 0;
 		if(varLast  != NULL) TempSym[*varLast]  = 0;
 	}
+	if(T == If || T == Loop){
+		node->attr.idx = *varFirst;
+	}
 	if(T == FuncDef){
 		node->is_ptr = maxTmpSym;
 		for(int i = 0; i <= maxTmpSym; ++i) TempSym[i] = 0;
 		maxTmpSym = -1;
+		cft_valid = 0;
 	}
-	if(T == Object && node->first != NULL) *var = *varFirst;
+	if(T == Object && node->first != NULL){
+		if(varFirst != NULL) *var = *varFirst;
+		else var = NULL;
+	}
 }
 
 void generate(treeNode *node, char *var){
@@ -299,20 +362,40 @@ void generate(treeNode *node, char *var){
 			generate(pointer->first, posVar); printf("\n");
 			if(T == Index){
 				//Address Translation
-			fprintf(fp,"t%d = t%d * %d",IDX,IDX,sz[pos]);
+				fprintf(fp,"t%d = t%d * %d\n",
+						IDX, IDX, sz[pos]);
 				//gen: t? = t? * sz[pos];
-				fprintf(fp,"t%d = t%d + %s",IDX,IDX,posVar);
+				fprintf(fp,"t%d = t%d + %s\n",
+					IDX,IDX,posVar);
 				//gen: t? = t? + posVar;
 			}
 			pointer = pointer->last;
 			pos++;
 		}
-		if(T == Index) sprintf(var, "t%d", node->attr.idx);
+		if(T == Index) {
+			fprintf(fp, "t%d = t%d * 4\n", IDX, IDX);
+			sprintf(var, "t%d", node->attr.idx);
+		}
 		return;
 	}
 	
 	//deal with binary nodes
 	if(T == Assignment){
+		if(node->is_ptr){ //initialization
+			int IIDX = node->first->attr.idx;
+			sprintf(arrSym,"T%d",IIDX);
+			bound = SymTab[IIDX].szCnt;
+			if(bound == 0){
+				char var[10] = "";
+				generate(node->last->first, var);
+				fprintf(fp,"%s = %s\n", arrSym, var);
+				return;
+			}
+			int len = 1;
+			for(int i=0; i<bound; ++i)len *= SymTab[IIDX].sz[i];
+			fill_in(node->last->first,SymTab[IIDX].sz,0,len,0);
+			return;
+		}
 		char Ovar[10] = "";
 		char Evar[10] = "";
 		generate(node->first, Ovar);
@@ -343,10 +426,7 @@ void generate(treeNode *node, char *var){
 	if(T == Expression){
 		char LVar[10] = "";
 		char RVar[10] = "";
-		if(node->val == 0){
-			sprintf(var, "%d", node->val);
-			return;
-		}
+		if(node->val > -1){sprintf(var, "%d", node->val);return;}
 		if(node->op != EMPTY_){
 			if(node->first == NULL){
 				//unary operator
@@ -410,10 +490,19 @@ void generate(treeNode *node, char *var){
 			//initialization
 		}
 		//var def
-		int tmp = SymTab[IDX].is_const;//bug here!
-		for(int i = 0; i < tmp; ++i) fprintf(fp,"var T%d\n",i);
+		int tmp = SymTab[IDX].is_const;
+		for(int i = 0; i < tmp; ++i){
+			fprintf(fp,"var ");
+			int ttmp = SymTab[i+currentBlockIdx].szCnt,res = 4;
+			if(ttmp > 0){
+				for(int j = 0; j < ttmp; ++j)
+				res *= SymTab[i+currentBlockIdx].sz[j];
+				fprintf(fp,"%d ",res);
+			}
+			fprintf(fp,"T%d\n",i+currentBlockIdx);
+		}
 		tmp = SymTab[IDX].is_func;
-		for(int i = 0; i < tmp; ++i) fprintf(fp,"var t%d\n",i);
+		for(int i = 0; i <= tmp; ++i) fprintf(fp,"var t%d\n",i);
 		
 		//deal with the block
 		generate(node->last);
@@ -437,20 +526,22 @@ void generate(treeNode *node, char *var){
 	if(T == 0xB){ printf("undefined binary node type: 0xB"); return; }
 	
 	if(T == If){
-		//deal with the condition first : node->first
-		printf("if ");
-		//display the condition : node->first
-		printf(" goto l%d",node->begin_true);
+		char condVar[10] = "";
+		generate(node->first,condVar);
+		fprintf(fp,"if %s > 0 goto l%d\n",
+			condVar,node->begin_true);
 		if(node->last->Type == Else){
 			generate(node->last->last); // cond == false
-			fprintf(fp,"\n goto l%d",node->end_if);
-			fprintf(fp,"\nl%d:",node->begin_true);
+			fprintf(fp,"goto l%d\n",node->end_if);
+			fprintf(fp,"l%d:\n",node->begin_true);
 			generate(node->last->first); // cond == true
+			fprintf(fp,"l%d:\n",node->end_if);
 		}
 		else{
-			fprintf(fp,"\n goto l%d",node->end_if);
-			fprintf(fp,"\nl%d:",node->begin_true);
+			fprintf(fp,"goto l%d\n",node->end_if);
+			fprintf(fp,"l%d:\n",node->begin_true);
 			generate(node->last); // cond == true
+			fprintf(fp,"l%d:\n",node->end_if);
 		}
 		return;
 	}
@@ -458,13 +549,15 @@ void generate(treeNode *node, char *var){
 	if(T == Else){ printf("Else shouldn't call generate\n"); return; }
 	
 	if(T == Loop){
+		char condVar[10] = "";
 		int begin_stmt = labelCnt++;
 		
 		lb_valid = 1; le_valid = 1;
 		loop_begin = node->begin_loop;
 		loop_end = node->end_loop;
 		fprintf(fp,"l%d:\n",node->begin_loop);
-		/*if cond == true*/ fprintf(fp,"goto l%d\n",begin_stmt);
+		generate(node->first, condVar);
+		fprintf(fp,"if %s > 0 goto l%d\n",condVar,begin_stmt);
 		fprintf(fp,"goto l%d\n",node->end_loop);
 		fprintf(fp,"l%d:\n",begin_stmt);
 		generate(node->last);//deal with the stmt
@@ -480,24 +573,29 @@ void generate(treeNode *node, char *var){
 				printf("return appears out of func\n");
 				return;
 			}
-			fprintf(fp,"return ");
 			if(node->last && currentFuncType == voidFunc)
 				printf("void func tries to return sth");
-			if(node->last && currentFuncType == voidFunc)
+			if(!(node->last) && currentFuncType == intFunc)
 				printf("int func returns nothing");
-			if(node->last) generate(node->last); //retval
+			if(node->last) {//retval
+				char var[10] = "";
+				generate(node->last, var);
+				fprintf(fp, "return %s\n", var);
+			}else{
+				fprintf(fp, "return\n");
+			}
 		}else if(bT == b_break){
 			if(lb_valid == 0 || le_valid == 0){
 				printf("break appears out of loop\n");
 				return;
 			}
-			fprintf(fp,"goto l%d",loop_end);
+			fprintf(fp,"goto l%d\n",loop_end);
 		}else if(bT == b_contin){
 			if(lb_valid == 0 || le_valid == 0){
 				printf("continue appears out of loop\n");
 				return;
 			}
-			fprintf(fp,"goto l%d",loop_begin);
+			fprintf(fp,"goto l%d\n",loop_begin);
 		}else printf("unknown branch type\n");
 		return;
 	}
