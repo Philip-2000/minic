@@ -68,15 +68,6 @@
 /* First part of user prologue.  */
 #line 1 "philip.y"
 
-/*
-%union{ treeNode * a; }
-%type<a> CompUnit CompUnits Decl ConstDecl VarDecl VarDefs VarDef
-%type<a> ConstDefs ConstDef ConstExpAs ConstInitVal ConstInitVals
-%type<a> ConstExpA ConstExp ExpAs ExpA Exp InitVals InitVal FuncDef_pre
-%type<a> FuncFParams FuncFParam BlockItems BlockItem Stmt
-%type<a> FuncRParams AddExp MulExp Cond LOrExp LAndExp RelExp UnaryExp
-%type<a> PrimaryExp LVal EqExp FuncDef Block
-*/
 #include <iostream>
 #include "philip.hpp"
 #include <string>
@@ -88,12 +79,10 @@ extern int yylex(void);
 extern int yyparse(treeNode*);
 void yyerror(treeNode*, string);
 void yyerror(string);
-FILE *fp = NULL;
 extern FILE *yyin;
 extern FILE *yyout;
-int yaccdbg = 1;
 
-#line 97 "philip.tab.cpp"
+#line 86 "philip.tab.cpp"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -556,16 +545,16 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    36,    36,    43,    49,    53,    58,    62,    66,    71,
-      75,    79,   114,   136,   141,   146,   150,   154,   158,   163,
-     167,   171,   202,   220,   251,   268,   273,   278,   282,   286,
-     291,   313,   337,   349,   349,   373,   378,   383,   411,   429,
-     448,   448,   461,   461,   468,   473,   479,   483,   487,   492,
-     497,   501,   505,   512,   522,   529,   533,   537,   541,   547,
-     552,   557,   561,   568,   574,   594,   605,   612,   619,   626,
-     633,   651,   662,   669,   676,   683,   688,   693,   700,   707,
-     714,   721,   728,   735,   742,   749,   756,   763,   770,   777,
-     784,   791,   798,   805,   812,   819,   826,   831,   836,   841
+       0,    25,    25,    32,    38,    42,    47,    51,    55,    60,
+      64,    68,   103,   125,   130,   135,   139,   143,   147,   152,
+     156,   160,   191,   209,   240,   257,   262,   267,   271,   275,
+     280,   302,   325,   337,   337,   361,   368,   374,   402,   420,
+     440,   440,   450,   450,   458,   463,   469,   473,   477,   482,
+     487,   491,   495,   502,   512,   519,   523,   527,   531,   537,
+     542,   547,   551,   558,   564,   584,   595,   602,   609,   616,
+     623,   642,   654,   661,   668,   675,   680,   685,   692,   699,
+     706,   713,   720,   727,   734,   741,   748,   755,   762,   769,
+     776,   783,   790,   797,   804,   811,   818,   823,   828,   833
 };
 #endif
 
@@ -1486,7 +1475,7 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 36 "philip.y"
+#line 25 "philip.y"
                                    {
 			yyval = new treeNode();
 			yyval->first = yyvsp[-1];
@@ -1494,86 +1483,86 @@ yyreduce:
 
 			root->first = yyvsp[-1];
 		}
-#line 1498 "philip.tab.cpp"
+#line 1487 "philip.tab.cpp"
     break;
 
   case 3:
-#line 43 "philip.y"
+#line 32 "philip.y"
                          {
               		yyval = new treeNode();
               		yyval->first = yyvsp[0];
               		yyval->last = NULL;
 			root->first = yyvsp[0];
 		}
-#line 1509 "philip.tab.cpp"
+#line 1498 "philip.tab.cpp"
     break;
 
   case 4:
-#line 49 "philip.y"
+#line 38 "philip.y"
                      {
 			yyval = new treeNode(CompilUnit);
 			yyval->first = yyvsp[0]->first; delete yyvsp[0];
 		}
-#line 1518 "philip.tab.cpp"
+#line 1507 "philip.tab.cpp"
     break;
 
   case 5:
-#line 53 "philip.y"
+#line 42 "philip.y"
                        {
 			yyval = new treeNode(CompilUnit);
 			yyval->first = yyvsp[0];
 		}
-#line 1527 "philip.tab.cpp"
+#line 1516 "philip.tab.cpp"
     break;
 
   case 6:
-#line 58 "philip.y"
+#line 47 "philip.y"
                           {
 			yyval = new treeNode();
 			yyval->first = yyvsp[0];
 		}
-#line 1536 "philip.tab.cpp"
+#line 1525 "philip.tab.cpp"
     break;
 
   case 7:
-#line 62 "philip.y"
+#line 51 "philip.y"
                         {
 			yyval = new treeNode();
 			yyval->first = yyvsp[0];
 		}
-#line 1545 "philip.tab.cpp"
+#line 1534 "philip.tab.cpp"
     break;
 
   case 8:
-#line 66 "philip.y"
+#line 55 "philip.y"
                                         {
 			yyval = new treeNode(Declarate);
 			yyval->is_const = 1;
 			yyval->first = yyvsp[-1];
 		}
-#line 1555 "philip.tab.cpp"
+#line 1544 "philip.tab.cpp"
     break;
 
   case 9:
-#line 71 "philip.y"
+#line 60 "philip.y"
                                         {
 			yyval = new treeNode(Definition);
 			yyval->first = yyvsp[-2]; yyval->last = yyvsp[0];
 		}
-#line 1564 "philip.tab.cpp"
+#line 1553 "philip.tab.cpp"
     break;
 
   case 10:
-#line 75 "philip.y"
+#line 64 "philip.y"
                          {
               		yyval = new treeNode(Definition);
               		yyval->first = yyvsp[0]; yyval->last = NULL;
               	}
-#line 1573 "philip.tab.cpp"
+#line 1562 "philip.tab.cpp"
     break;
 
   case 11:
-#line 79 "philip.y"
+#line 68 "philip.y"
                                                 {
 			//define this IDENT;
 			
@@ -1609,11 +1598,11 @@ yyreduce:
 			yyval->is_const = 1;
 			yyval->first = yyvsp[-2];  yyval->last = yyvsp[0];
 		}
-#line 1613 "philip.tab.cpp"
+#line 1602 "philip.tab.cpp"
     break;
 
   case 12:
-#line 114 "philip.y"
+#line 103 "philip.y"
                                      {
               		//define this IDENT
               		
@@ -1636,86 +1625,86 @@ yyreduce:
 			yyval->is_const = 1;
 			yyval->first = yyvsp[-2];  yyval->last = yyvsp[0];
               	}
-#line 1640 "philip.tab.cpp"
+#line 1629 "philip.tab.cpp"
     break;
 
   case 13:
-#line 136 "philip.y"
+#line 125 "philip.y"
                                                 {
 			yyvsp[-2]->last = yyvsp[0]->first;
 			yyval = new treeNode();
 			yyval->first = yyvsp[-2]; delete yyvsp[0];
 		}
-#line 1650 "philip.tab.cpp"
+#line 1639 "philip.tab.cpp"
     break;
 
   case 14:
-#line 141 "philip.y"
+#line 130 "philip.y"
                             {
               		yyvsp[0]->last = NULL;
               		yyval = new treeNode();
               		yyval->first = yyvsp[0];
               	}
-#line 1660 "philip.tab.cpp"
+#line 1649 "philip.tab.cpp"
     break;
 
   case 15:
-#line 146 "philip.y"
+#line 135 "philip.y"
                         {
 			yyval = new treeNode(Values);
 			yyval->first = yyvsp[0];
 		}
-#line 1669 "philip.tab.cpp"
+#line 1658 "philip.tab.cpp"
     break;
 
   case 16:
-#line 150 "philip.y"
+#line 139 "philip.y"
                                          {
 			yyval = new treeNode(Values);
 			yyval->first = yyvsp[-1]->first; delete yyvsp[-1];
               	}
-#line 1678 "philip.tab.cpp"
+#line 1667 "philip.tab.cpp"
     break;
 
   case 17:
-#line 154 "philip.y"
+#line 143 "philip.y"
                            {
 			yyval = new treeNode(Values);
 			yyval->first = NULL;
               	}
-#line 1687 "philip.tab.cpp"
+#line 1676 "philip.tab.cpp"
     break;
 
   case 18:
-#line 158 "philip.y"
+#line 147 "philip.y"
                                 {
 			yyval = new treeNode(Declarate);
 			yyval->is_const = 0;
 			yyval->first = yyvsp[-1];
 		}
-#line 1697 "philip.tab.cpp"
+#line 1686 "philip.tab.cpp"
     break;
 
   case 19:
-#line 163 "philip.y"
+#line 152 "philip.y"
                                     {
 			yyval = new treeNode(Definition);
 			yyval->first = yyvsp[-2]; yyval->last = yyvsp[0];
 		}
-#line 1706 "philip.tab.cpp"
+#line 1695 "philip.tab.cpp"
     break;
 
   case 20:
-#line 167 "philip.y"
+#line 156 "philip.y"
                        {
               		yyval = new treeNode(Definition);
               		yyval->first = yyvsp[0]; yyval->last = NULL;
               	}
-#line 1715 "philip.tab.cpp"
+#line 1704 "philip.tab.cpp"
     break;
 
   case 21:
-#line 171 "philip.y"
+#line 160 "philip.y"
                                            {
 			//define this IDENT;
 			
@@ -1747,11 +1736,11 @@ yyreduce:
 			yyval->is_const = 0;
 			yyval->first = yyvsp[-3];  yyval->last = yyvsp[0];
 		}
-#line 1751 "philip.tab.cpp"
+#line 1740 "philip.tab.cpp"
     break;
 
   case 22:
-#line 202 "philip.y"
+#line 191 "philip.y"
                                 {
               		//define this IDENT
               			//first check if it is defined
@@ -1770,11 +1759,11 @@ yyreduce:
 			yyval->is_const = 0;
 			yyval->first = yyvsp[-2];  yyval->last = yyvsp[0];
 		}
-#line 1774 "philip.tab.cpp"
+#line 1763 "philip.tab.cpp"
     break;
 
   case 23:
-#line 220 "philip.y"
+#line 209 "philip.y"
                                 {
 			//define this IDENT;
 			
@@ -1806,11 +1795,11 @@ yyreduce:
 			yyval->is_const = 0;
 			yyval->first = yyvsp[-1];  yyval->last = NULL;
 		}
-#line 1810 "philip.tab.cpp"
+#line 1799 "philip.tab.cpp"
     break;
 
   case 24:
-#line 251 "philip.y"
+#line 240 "philip.y"
                      {
               		//define this IDENT
               		//printf("FLAG!");
@@ -1828,58 +1817,58 @@ yyreduce:
 			yyval->is_const = 0;
 			yyval->first = yyvsp[0];  yyval->last = NULL;
 		}
-#line 1832 "philip.tab.cpp"
+#line 1821 "philip.tab.cpp"
     break;
 
   case 25:
-#line 268 "philip.y"
+#line 257 "philip.y"
                                       {
 			yyvsp[-2]->last = yyvsp[0]->first;
 			yyval = new treeNode();
 			yyval->first = yyvsp[-2]; delete yyvsp[0];
 		}
-#line 1842 "philip.tab.cpp"
+#line 1831 "philip.tab.cpp"
     break;
 
   case 26:
-#line 273 "philip.y"
+#line 262 "philip.y"
                        {
               		yyvsp[0]->last = NULL;
               		yyval = new treeNode();
               		yyval->first = yyvsp[0];
               	}
-#line 1852 "philip.tab.cpp"
+#line 1841 "philip.tab.cpp"
     break;
 
   case 27:
-#line 278 "philip.y"
+#line 267 "philip.y"
                    {
 			yyval = new treeNode(Values);
 			yyval->first = yyvsp[0];
 		}
-#line 1861 "philip.tab.cpp"
+#line 1850 "philip.tab.cpp"
     break;
 
   case 28:
-#line 282 "philip.y"
+#line 271 "philip.y"
                                     {
 			yyval = new treeNode(Values);
 			yyval->first = yyvsp[-1]->first; delete yyvsp[-1];
               	}
-#line 1870 "philip.tab.cpp"
+#line 1859 "philip.tab.cpp"
     break;
 
   case 29:
-#line 286 "philip.y"
+#line 275 "philip.y"
                            {
 			yyval = new treeNode(Values);
 			yyval->first = NULL;
               	}
-#line 1879 "philip.tab.cpp"
+#line 1868 "philip.tab.cpp"
     break;
 
   case 30:
-#line 291 "philip.y"
+#line 280 "philip.y"
                           {
 			//define IDENT
 				//check if I'm at the root
@@ -1896,17 +1885,17 @@ yyreduce:
 			SymStack[currentSymStack] = 1;
 			yyvsp[0]->attr.idx = currentSym;
 			
-			++currentSymStack;
+			++currentSymStack; SymStack[currentSymStack] = 0;
 			
 			yyval = new treeNode();
 			yyval->attr.idx = currentSym;
 			delete yyvsp[0];
 		}
-#line 1906 "philip.tab.cpp"
+#line 1895 "philip.tab.cpp"
     break;
 
   case 31:
-#line 313 "philip.y"
+#line 302 "philip.y"
                          {
               		//define IDENT
 				//check if I'm at the root
@@ -1923,18 +1912,17 @@ yyreduce:
 			SymStack[currentSymStack] = 1;
 			yyvsp[0]->attr.idx = currentSym;
 			
-			++currentSymStack;
+			++currentSymStack; SymStack[currentSymStack] = 0;
 			
 			yyval = new treeNode();
 			yyval->attr.idx = currentSym;
 			delete yyvsp[0];
-			//printf("FLAG!");
               	}
-#line 1934 "philip.tab.cpp"
+#line 1922 "philip.tab.cpp"
     break;
 
   case 32:
-#line 337 "philip.y"
+#line 325 "philip.y"
                                           {
 			yyval = new treeNode(FuncDef);
 			yyval->first = NULL;
@@ -1947,11 +1935,11 @@ yyreduce:
 
 			delete yyvsp[-3];
 		}
-#line 1951 "philip.tab.cpp"
+#line 1939 "philip.tab.cpp"
     break;
 
   case 33:
-#line 349 "philip.y"
+#line 337 "philip.y"
                                                 {
               		//check how many parameters are there for me
               		int paraCnt = 0;
@@ -1963,15 +1951,15 @@ yyreduce:
               		SymTab[yyvsp[-3]->attr.idx].szCnt = paraCnt;
               		
               	}
-#line 1967 "philip.tab.cpp"
+#line 1955 "philip.tab.cpp"
     break;
 
   case 34:
-#line 359 "philip.y"
+#line 347 "philip.y"
                         {
 			
               		yyval = new treeNode(FuncDef);
-			yyval->first = yyvsp[-3]->first; delete yyvsp[-3];
+			yyval->first = yyvsp[-3];
 			yyval->last = yyvsp[0];
 			yyval->attr.idx = yyvsp[-5]->attr.idx;
 			
@@ -1981,36 +1969,39 @@ yyreduce:
 			
 			delete yyvsp[-5];
               	}
-#line 1985 "philip.tab.cpp"
+#line 1973 "philip.tab.cpp"
     break;
 
   case 35:
-#line 373 "philip.y"
+#line 361 "philip.y"
                                             {
-			yyvsp[-2]->last = yyvsp[0]->first;
-			yyval = new treeNode();
-			yyval->first = yyvsp[-2]; delete yyvsp[0];
+			printf("FuncFParam FuncFParam Flag!\n");
+			//$1->last = $3->first;
+			yyval = new treeNode(Parameter);
+			yyval->first = yyvsp[-2];
+			yyval->last = yyvsp[0];
 		}
-#line 1995 "philip.tab.cpp"
+#line 1985 "philip.tab.cpp"
     break;
 
   case 36:
-#line 378 "philip.y"
+#line 368 "philip.y"
                           {
-              		yyvsp[0]->last = NULL;
-              		yyval = new treeNode();
+              		printf("FuncFParam Flag!\n");
+              		yyval = new treeNode(Parameter);
               		yyval->first = yyvsp[0];
+              		yyval->last = NULL;
               	}
-#line 2005 "philip.tab.cpp"
+#line 1996 "philip.tab.cpp"
     break;
 
   case 37:
-#line 383 "philip.y"
+#line 374 "philip.y"
                                               {
 			//define this IDENT;
 			
 				//first check if it is defined
-	      		char *N = strdup(yyvsp[-4]->attr.n);
+	      		char *N = strdup(yyvsp[-3]->attr.n);
               		if(lookup(N,1) != -1) yyerror("symbol re-defined");
               		
               			//recursively get those parameters
@@ -2034,16 +2025,16 @@ yyreduce:
 			yyval->first = yyvsp[0];
 			yyval->attr.idx = currentSym;
 		}
-#line 2038 "philip.tab.cpp"
+#line 2029 "philip.tab.cpp"
     break;
 
   case 38:
-#line 411 "philip.y"
+#line 402 "philip.y"
                                    {
               		//define this IDENT
               		
               			//first check if it is defined
-              		char *N = strdup(yyvsp[-3]->attr.n);
+              		char *N = strdup(yyvsp[-2]->attr.n);
               		if(lookup(N,1) != -1) yyerror("symbol re-defined");
               		
               			//define it
@@ -2057,16 +2048,17 @@ yyreduce:
               		yyval->first = NULL;
               		yyval->attr.idx = currentSym;
               	}
-#line 2061 "philip.tab.cpp"
+#line 2052 "philip.tab.cpp"
     break;
 
   case 39:
-#line 429 "philip.y"
+#line 420 "philip.y"
                          {
+              		printf("INT IDENT\n");
               		//define this IDENT
               		
               			//first check if it is defined
-              		char *N = strdup(yyvsp[-1]->attr.n);
+              		char *N = strdup(yyvsp[0]->attr.n);
               		if(lookup(N,1) != -1) yyerror("symbol re-defined");
               		
               			//define it
@@ -2080,130 +2072,128 @@ yyreduce:
               		yyval->first = NULL;
               		yyval->attr.idx = currentSym;
               	}
-#line 2084 "philip.tab.cpp"
+#line 2076 "philip.tab.cpp"
     break;
 
   case 40:
-#line 448 "philip.y"
-                      { ++currentSymStack; }
-#line 2090 "philip.tab.cpp"
+#line 440 "philip.y"
+                      { ++currentSymStack;  SymStack[currentSymStack] = 0;
+		}
+#line 2083 "philip.tab.cpp"
     break;
 
   case 41:
-#line 448 "philip.y"
-                                                             {
-			printf("Block FLAG!\n");
-
+#line 441 "philip.y"
+                                   {
 			yyval = new treeNode(StmtBlock);
 			yyval->first = yyvsp[-1]->first;
 			delete yyvsp[-1];
-			
-			
-			
+
 			if(SymStack[currentSymStack] == 1)
 				currentSym = step_out();
 			--currentSymStack;
 		}
-#line 2108 "philip.tab.cpp"
+#line 2097 "philip.tab.cpp"
     break;
 
   case 42:
-#line 461 "philip.y"
-                      { ++currentSymStack; }
-#line 2114 "philip.tab.cpp"
+#line 450 "philip.y"
+                      { ++currentSymStack; SymStack[currentSymStack] = 0;
+              	}
+#line 2104 "philip.tab.cpp"
     break;
 
   case 43:
-#line 461 "philip.y"
-                                                  {
+#line 451 "philip.y"
+                        {
               		yyval = new treeNode(StmtBlock);
               		yyval->first = NULL; //same as above to avoid conflict
               		if(SymStack[currentSymStack] == 1)
 				currentSym = step_out();
 			--currentSymStack;
               	}
-#line 2126 "philip.tab.cpp"
+#line 2116 "philip.tab.cpp"
     break;
 
   case 44:
-#line 468 "philip.y"
+#line 458 "philip.y"
                                     {
 			yyvsp[-1]->last = yyvsp[0]->first;
 			yyval = new treeNode();
 			yyval->first = yyvsp[-1]; delete yyvsp[0];
 		}
-#line 2136 "philip.tab.cpp"
+#line 2126 "philip.tab.cpp"
     break;
 
   case 45:
-#line 473 "philip.y"
+#line 463 "philip.y"
                          {
               		yyvsp[0]->last = NULL;
               		yyval = new treeNode();
               		yyval->attr.idx = 1024;
               		yyval->first = yyvsp[0];
               	}
-#line 2147 "philip.tab.cpp"
+#line 2137 "philip.tab.cpp"
     break;
 
   case 46:
-#line 479 "philip.y"
+#line 469 "philip.y"
                     {
 			yyval = new treeNode(BlockIt);
 			yyval->first = yyvsp[0]->first; delete yyvsp[0];
 		}
-#line 2156 "philip.tab.cpp"
+#line 2146 "philip.tab.cpp"
     break;
 
   case 47:
-#line 483 "philip.y"
+#line 473 "philip.y"
                     {
 	      		yyval = new treeNode(BlockIt);
 	      		yyval->first = yyvsp[0];
 	      	}
-#line 2165 "philip.tab.cpp"
+#line 2155 "philip.tab.cpp"
     break;
 
   case 48:
-#line 487 "philip.y"
+#line 477 "philip.y"
                                 {
 			yyval = new treeNode(Assignment);
 			yyval->first = yyvsp[-3];
 			yyval->last = yyvsp[-1];
 		}
-#line 2175 "philip.tab.cpp"
+#line 2165 "philip.tab.cpp"
     break;
 
   case 49:
-#line 492 "philip.y"
+#line 482 "philip.y"
                         {
               		yyval = new treeNode(Expression);
               		yyval->first = yyvsp[-1];
               		yyval->op = EMPTY_;
               	}
-#line 2185 "philip.tab.cpp"
+#line 2175 "philip.tab.cpp"
     break;
 
   case 50:
-#line 497 "philip.y"
+#line 487 "philip.y"
                     {
               		yyval = new treeNode();
               		yyval->first = NULL; yyval->last = NULL;
               	}
-#line 2194 "philip.tab.cpp"
+#line 2184 "philip.tab.cpp"
     break;
 
   case 51:
-#line 501 "philip.y"
+#line 491 "philip.y"
                      {
               		yyval = new treeNode(StmtBlock);
               		yyval->first = yyvsp[0]->first; delete yyvsp[0];
               	}
-#line 2203 "philip.tab.cpp"
+#line 2193 "philip.tab.cpp"
     break;
 
   case 52:
-#line 505 "philip.y"
+#line 495 "philip.y"
                                     {
               		yyval = new treeNode(If);
               		yyval->first = yyvsp[-2];
@@ -2211,11 +2201,11 @@ yyreduce:
               		yyval->end_if = labelCnt++;
               		yyval->begin_true = labelCnt++; 
               	}
-#line 2215 "philip.tab.cpp"
+#line 2205 "philip.tab.cpp"
     break;
 
   case 53:
-#line 512 "philip.y"
+#line 502 "philip.y"
                                               {
               		yyval = new treeNode(If);
               		yyval->first = yyvsp[-4];
@@ -2226,11 +2216,11 @@ yyreduce:
               		yyval->end_if = labelCnt++;
               		yyval->begin_true = labelCnt++;
               	}
-#line 2230 "philip.tab.cpp"
+#line 2220 "philip.tab.cpp"
     break;
 
   case 54:
-#line 522 "philip.y"
+#line 512 "philip.y"
                                        {
               		yyval = new treeNode(Loop);
               		yyval->first = yyvsp[-2];
@@ -2238,77 +2228,77 @@ yyreduce:
               		yyval->end_loop = labelCnt++;
               		yyval->begin_loop = labelCnt++;
 		}
-#line 2242 "philip.tab.cpp"
+#line 2232 "philip.tab.cpp"
     break;
 
   case 55:
-#line 529 "philip.y"
+#line 519 "philip.y"
                           {
               		yyval = new treeNode(Branch);
               		yyval->b_type = b_break;
               	}
-#line 2251 "philip.tab.cpp"
+#line 2241 "philip.tab.cpp"
     break;
 
   case 56:
-#line 533 "philip.y"
+#line 523 "philip.y"
                              {
               		yyval = new treeNode(Branch);
               		yyval->b_type = b_contin;
               	}
-#line 2260 "philip.tab.cpp"
+#line 2250 "philip.tab.cpp"
     break;
 
   case 57:
-#line 537 "philip.y"
+#line 527 "philip.y"
                            {
               		yyval = new treeNode(Branch);
               		yyval->b_type = b_return;
               	}
-#line 2269 "philip.tab.cpp"
+#line 2259 "philip.tab.cpp"
     break;
 
   case 58:
-#line 541 "philip.y"
+#line 531 "philip.y"
                                {
               		yyval = new treeNode(Branch);
               		yyval->b_type = b_return;
               		yyval->last = yyvsp[-1];
               	}
-#line 2279 "philip.tab.cpp"
+#line 2269 "philip.tab.cpp"
     break;
 
   case 59:
-#line 547 "philip.y"
+#line 537 "philip.y"
                           {
 			yyvsp[-1]->last = yyvsp[0]->first;
 			yyval = new treeNode();
 			yyval->first = yyvsp[-1]; delete yyvsp[0];
 		}
-#line 2289 "philip.tab.cpp"
+#line 2279 "philip.tab.cpp"
     break;
 
   case 60:
-#line 552 "philip.y"
+#line 542 "philip.y"
                     {
               		yyvsp[0]->last = NULL;
               		yyval = new treeNode();
               		yyval->first = yyvsp[0];
               	}
-#line 2299 "philip.tab.cpp"
+#line 2289 "philip.tab.cpp"
     break;
 
   case 61:
-#line 557 "philip.y"
+#line 547 "philip.y"
                              {
 			yyval = new treeNode(Index);
 			yyval->first = yyvsp[-1];
 		}
-#line 2308 "philip.tab.cpp"
+#line 2298 "philip.tab.cpp"
     break;
 
   case 62:
-#line 561 "philip.y"
+#line 551 "philip.y"
                       {
               		yyval = new treeNode(Expression);
               		yyval->first = yyvsp[0];
@@ -2316,22 +2306,22 @@ yyreduce:
 			yyval->last = NULL;
 			yyval->is_const = yyvsp[0]->is_const;
               	}
-#line 2320 "philip.tab.cpp"
+#line 2310 "philip.tab.cpp"
     break;
 
   case 63:
-#line 568 "philip.y"
+#line 558 "philip.y"
                       {
               		yyval = new treeNode(Expression);
               		yyval->first = yyvsp[0];
 			yyval->op = EMPTY_;
 			yyval->last = NULL;
               	}
-#line 2331 "philip.tab.cpp"
+#line 2321 "philip.tab.cpp"
     break;
 
   case 64:
-#line 574 "philip.y"
+#line 564 "philip.y"
                            {
               		yyval = new treeNode(Object);
               		char *N = strdup(yyvsp[-1]->attr.n);
@@ -2352,11 +2342,11 @@ yyreduce:
               		yyval->first = yyvsp[0]->first;
               		yyval->is_const = 0;
               	}
-#line 2356 "philip.tab.cpp"
+#line 2346 "philip.tab.cpp"
     break;
 
   case 65:
-#line 594 "philip.y"
+#line 584 "philip.y"
                      {
               		yyval = new treeNode(Object);
               		char *N = strdup(yyvsp[0]->attr.n);
@@ -2368,11 +2358,11 @@ yyreduce:
               		yyval->first = NULL;
               		yyval->is_const = 0;
               	}
-#line 2372 "philip.tab.cpp"
+#line 2362 "philip.tab.cpp"
     break;
 
   case 66:
-#line 605 "philip.y"
+#line 595 "philip.y"
                            {
 			yyval = new treeNode(Expression);
 			yyval->first = yyvsp[-1];
@@ -2380,11 +2370,11 @@ yyreduce:
 			yyval->last = NULL;
 			yyval->is_const = yyvsp[-1]->is_const;
 		}
-#line 2384 "philip.tab.cpp"
+#line 2374 "philip.tab.cpp"
     break;
 
   case 67:
-#line 612 "philip.y"
+#line 602 "philip.y"
                     {
               		yyval = new treeNode(Expression);
 			yyval->first = yyvsp[0];
@@ -2392,11 +2382,11 @@ yyreduce:
 			yyval->last = NULL;
 			yyval->is_const = yyvsp[0]->is_const;
               	}
-#line 2396 "philip.tab.cpp"
+#line 2386 "philip.tab.cpp"
     break;
 
   case 68:
-#line 619 "philip.y"
+#line 609 "philip.y"
                          {
               		yyval = new treeNode(Expression);
 			yyval->first = yyvsp[0];
@@ -2404,11 +2394,11 @@ yyreduce:
 			yyval->last = NULL;
 			yyval->is_const = 1;
               	}
-#line 2408 "philip.tab.cpp"
+#line 2398 "philip.tab.cpp"
     break;
 
   case 69:
-#line 626 "philip.y"
+#line 616 "philip.y"
                           {
 			yyval = new treeNode(Expression);
 			yyval->first = yyvsp[0];
@@ -2416,11 +2406,11 @@ yyreduce:
 			yyval->last = NULL;
 			yyval->is_const = yyvsp[0]->is_const;
 		}
-#line 2420 "philip.tab.cpp"
+#line 2410 "philip.tab.cpp"
     break;
 
   case 70:
-#line 633 "philip.y"
+#line 623 "philip.y"
                                          {
               		yyval = new treeNode(FuncCall);
               		char *N = strdup(yyvsp[-3]->attr.n);
@@ -2438,12 +2428,13 @@ yyreduce:
               		
               		yyval->first = yyvsp[-1];
 			yyval->is_const = 0;
+			yyval->attr.idx = res;
               	}
-#line 2443 "philip.tab.cpp"
+#line 2434 "philip.tab.cpp"
     break;
 
   case 71:
-#line 651 "philip.y"
+#line 642 "philip.y"
                              {
               
               		yyval = new treeNode(FuncCall);
@@ -2454,12 +2445,13 @@ yyreduce:
               		
               		yyval->first = NULL;
               		yyval->is_const = 0;
+              		yyval->attr.idx = res;
               	}
-#line 2459 "philip.tab.cpp"
+#line 2451 "philip.tab.cpp"
     break;
 
   case 72:
-#line 662 "philip.y"
+#line 654 "philip.y"
                               {
 			yyval = new treeNode(Expression);
 			yyval->first = NULL;
@@ -2467,11 +2459,11 @@ yyreduce:
 			yyval->last = yyvsp[0];
 			yyval->is_const = yyvsp[0]->is_const;
 		}
-#line 2471 "philip.tab.cpp"
+#line 2463 "philip.tab.cpp"
     break;
 
   case 73:
-#line 669 "philip.y"
+#line 661 "philip.y"
                               {
 			yyval = new treeNode(Expression);
 			yyval->first = NULL;
@@ -2479,11 +2471,11 @@ yyreduce:
 			yyval->last = yyvsp[0];
 			yyval->is_const = yyvsp[0]->is_const;
 		}
-#line 2483 "philip.tab.cpp"
+#line 2475 "philip.tab.cpp"
     break;
 
   case 74:
-#line 676 "philip.y"
+#line 668 "philip.y"
                              {
 			yyval = new treeNode(Expression);
 			yyval->first = NULL;
@@ -2491,31 +2483,31 @@ yyreduce:
 			yyval->last = yyvsp[0];
 			yyval->is_const = yyvsp[0]->is_const;
 		}
-#line 2495 "philip.tab.cpp"
+#line 2487 "philip.tab.cpp"
     break;
 
   case 75:
-#line 683 "philip.y"
+#line 675 "philip.y"
                                      {
 			yyvsp[-2]->last = yyvsp[0]->first;
 			yyval = new treeNode(Argument);
 			yyval->first = yyvsp[-2]; delete yyvsp[0];
 		}
-#line 2505 "philip.tab.cpp"
+#line 2497 "philip.tab.cpp"
     break;
 
   case 76:
-#line 688 "philip.y"
+#line 680 "philip.y"
                    {
               		yyvsp[0]->last = NULL;
               		yyval = new treeNode(Argument);
               		yyval->first = yyvsp[0];
               	}
-#line 2515 "philip.tab.cpp"
+#line 2507 "philip.tab.cpp"
     break;
 
   case 77:
-#line 693 "philip.y"
+#line 685 "philip.y"
                                    {
 			yyval = new treeNode(Expression);
               		yyval->first = yyvsp[-2];
@@ -2523,11 +2515,11 @@ yyreduce:
               		yyval->last = yyvsp[0];
               		yyval->is_const = yyvsp[-2]->is_const && yyvsp[0]->is_const;
 		}
-#line 2527 "philip.tab.cpp"
+#line 2519 "philip.tab.cpp"
     break;
 
   case 78:
-#line 700 "philip.y"
+#line 692 "philip.y"
                                    {
 			yyval = new treeNode(Expression);
               		yyval->first = yyvsp[-2];
@@ -2535,11 +2527,11 @@ yyreduce:
               		yyval->last = yyvsp[0];
               		yyval->is_const = yyvsp[-2]->is_const && yyvsp[0]->is_const;
 		}
-#line 2539 "philip.tab.cpp"
+#line 2531 "philip.tab.cpp"
     break;
 
   case 79:
-#line 707 "philip.y"
+#line 699 "philip.y"
                                    {
 			yyval = new treeNode(Expression);
               		yyval->first = yyvsp[-2];
@@ -2547,11 +2539,11 @@ yyreduce:
               		yyval->last = yyvsp[0];
               		yyval->is_const = yyvsp[-2]->is_const && yyvsp[0]->is_const;
 		}
-#line 2551 "philip.tab.cpp"
+#line 2543 "philip.tab.cpp"
     break;
 
   case 80:
-#line 714 "philip.y"
+#line 706 "philip.y"
                         {
               		yyval = new treeNode(Expression);
               		yyval->first = yyvsp[0];
@@ -2559,11 +2551,11 @@ yyreduce:
 			yyval->last = NULL;
 			yyval->is_const = yyvsp[0]->is_const;
               	}
-#line 2563 "philip.tab.cpp"
+#line 2555 "philip.tab.cpp"
     break;
 
   case 81:
-#line 721 "philip.y"
+#line 713 "philip.y"
                                  {
 			yyval = new treeNode(Expression);
               		yyval->first = yyvsp[-2];
@@ -2571,11 +2563,11 @@ yyreduce:
               		yyval->last = yyvsp[0];
               		yyval->is_const = yyvsp[-2]->is_const && yyvsp[0]->is_const;
 		}
-#line 2575 "philip.tab.cpp"
+#line 2567 "philip.tab.cpp"
     break;
 
   case 82:
-#line 728 "philip.y"
+#line 720 "philip.y"
                                  {
 			yyval = new treeNode(Expression);
               		yyval->first = yyvsp[-2];
@@ -2583,11 +2575,11 @@ yyreduce:
               		yyval->last = yyvsp[0];
               		yyval->is_const = yyvsp[-2]->is_const && yyvsp[0]->is_const;
 		}
-#line 2587 "philip.tab.cpp"
+#line 2579 "philip.tab.cpp"
     break;
 
   case 83:
-#line 735 "philip.y"
+#line 727 "philip.y"
                       {
               		yyval = new treeNode(Expression);
               		yyval->first = yyvsp[0];
@@ -2595,11 +2587,11 @@ yyreduce:
 			yyval->last = NULL;
 			yyval->is_const = yyvsp[0]->is_const;
               	}
-#line 2599 "philip.tab.cpp"
+#line 2591 "philip.tab.cpp"
     break;
 
   case 84:
-#line 742 "philip.y"
+#line 734 "philip.y"
                                 {
 			yyval = new treeNode(Expression);
               		yyval->first = yyvsp[-2];
@@ -2607,11 +2599,11 @@ yyreduce:
               		yyval->last = yyvsp[0];
               		yyval->is_const = yyvsp[-2]->is_const && yyvsp[0]->is_const;
 		}
-#line 2611 "philip.tab.cpp"
+#line 2603 "philip.tab.cpp"
     break;
 
   case 85:
-#line 749 "philip.y"
+#line 741 "philip.y"
                                 {
 			yyval = new treeNode(Expression);
               		yyval->first = yyvsp[-2];
@@ -2619,11 +2611,11 @@ yyreduce:
               		yyval->last = yyvsp[0];
               		yyval->is_const = yyvsp[-2]->is_const && yyvsp[0]->is_const;
 		}
-#line 2623 "philip.tab.cpp"
+#line 2615 "philip.tab.cpp"
     break;
 
   case 86:
-#line 756 "philip.y"
+#line 748 "philip.y"
                                   {
 			yyval = new treeNode(Expression);
               		yyval->first = yyvsp[-2];
@@ -2631,11 +2623,11 @@ yyreduce:
               		yyval->last = yyvsp[0];
               		yyval->is_const = yyvsp[-2]->is_const && yyvsp[0]->is_const;
 		}
-#line 2635 "philip.tab.cpp"
+#line 2627 "philip.tab.cpp"
     break;
 
   case 87:
-#line 763 "philip.y"
+#line 755 "philip.y"
                                   {
 			yyval = new treeNode(Expression);
               		yyval->first = yyvsp[-2];
@@ -2643,11 +2635,11 @@ yyreduce:
               		yyval->last = yyvsp[0];
               		yyval->is_const = yyvsp[-2]->is_const && yyvsp[0]->is_const;
 		}
-#line 2647 "philip.tab.cpp"
+#line 2639 "philip.tab.cpp"
     break;
 
   case 88:
-#line 770 "philip.y"
+#line 762 "philip.y"
                       {
               		yyval = new treeNode(Expression);
               		yyval->first = yyvsp[0];
@@ -2655,11 +2647,11 @@ yyreduce:
 			yyval->last = NULL;
 			yyval->is_const = yyvsp[0]->is_const;
               	}
-#line 2659 "philip.tab.cpp"
+#line 2651 "philip.tab.cpp"
     break;
 
   case 89:
-#line 777 "philip.y"
+#line 769 "philip.y"
                                  {
 			yyval = new treeNode(Expression);
               		yyval->first = yyvsp[-2];
@@ -2667,11 +2659,11 @@ yyreduce:
               		yyval->last = yyvsp[0];
               		yyval->is_const = yyvsp[-2]->is_const && yyvsp[0]->is_const;
 		}
-#line 2671 "philip.tab.cpp"
+#line 2663 "philip.tab.cpp"
     break;
 
   case 90:
-#line 784 "philip.y"
+#line 776 "philip.y"
                                  {
 			yyval = new treeNode(Expression);
               		yyval->first = yyvsp[-2];
@@ -2679,11 +2671,11 @@ yyreduce:
               		yyval->last = yyvsp[0];
               		yyval->is_const = yyvsp[-2]->is_const && yyvsp[0]->is_const;
 		}
-#line 2683 "philip.tab.cpp"
+#line 2675 "philip.tab.cpp"
     break;
 
   case 91:
-#line 791 "philip.y"
+#line 783 "philip.y"
                       {
               		yyval = new treeNode(Expression);
               		yyval->first = yyvsp[0];
@@ -2691,11 +2683,11 @@ yyreduce:
 			yyval->last = NULL;
 			yyval->is_const = yyvsp[0]->is_const;
               	}
-#line 2695 "philip.tab.cpp"
+#line 2687 "philip.tab.cpp"
     break;
 
   case 92:
-#line 798 "philip.y"
+#line 790 "philip.y"
                                     {
 			yyval = new treeNode(Expression);
               		yyval->first = yyvsp[-2];
@@ -2703,11 +2695,11 @@ yyreduce:
               		yyval->last = yyvsp[0];
               		yyval->is_const = yyvsp[-2]->is_const && yyvsp[0]->is_const;
 		}
-#line 2707 "philip.tab.cpp"
+#line 2699 "philip.tab.cpp"
     break;
 
   case 93:
-#line 805 "philip.y"
+#line 797 "philip.y"
                      {
               		yyval = new treeNode(Expression);
               		yyval->first = yyvsp[0];
@@ -2715,11 +2707,11 @@ yyreduce:
 			yyval->last = NULL;
 			yyval->is_const = yyvsp[0]->is_const;
               	}
-#line 2719 "philip.tab.cpp"
+#line 2711 "philip.tab.cpp"
     break;
 
   case 94:
-#line 812 "philip.y"
+#line 804 "philip.y"
                                    {
 			yyval = new treeNode(Expression);
               		yyval->first = yyvsp[-2];
@@ -2727,11 +2719,11 @@ yyreduce:
               		yyval->last = yyvsp[0];
               		yyval->is_const = yyvsp[-2]->is_const && yyvsp[0]->is_const;
 		}
-#line 2731 "philip.tab.cpp"
+#line 2723 "philip.tab.cpp"
     break;
 
   case 95:
-#line 819 "philip.y"
+#line 811 "philip.y"
                        {
               		yyval = new treeNode(Expression);
               		yyval->first = yyvsp[0];
@@ -2739,54 +2731,55 @@ yyreduce:
 			yyval->last = NULL;
 			yyval->is_const = yyvsp[0]->is_const;
               	}
-#line 2743 "philip.tab.cpp"
+#line 2735 "philip.tab.cpp"
     break;
 
   case 96:
-#line 826 "philip.y"
+#line 818 "philip.y"
                                     {
 			yyvsp[-1]->last = yyvsp[0]->first;
 			yyval = new treeNode();
 			yyval->first = yyvsp[-1]; delete yyvsp[0];
 		}
-#line 2753 "philip.tab.cpp"
+#line 2745 "philip.tab.cpp"
     break;
 
   case 97:
-#line 831 "philip.y"
+#line 823 "philip.y"
                          {
               		yyvsp[0]->last = NULL;
               		yyval = new treeNode();
               		yyval->first = yyvsp[0];
               	}
-#line 2763 "philip.tab.cpp"
+#line 2755 "philip.tab.cpp"
     break;
 
   case 98:
-#line 836 "philip.y"
+#line 828 "philip.y"
                                   {
 			yyval = new treeNode(Index);
 			yyval->first = yyvsp[-1];
 			yyval->is_const = 1;
 		}
-#line 2773 "philip.tab.cpp"
+#line 2765 "philip.tab.cpp"
     break;
 
   case 99:
-#line 841 "philip.y"
+#line 833 "philip.y"
                       {
 			yyval = new treeNode(Expression);
 			yyval->first = yyvsp[0];
 			yyval->op = EMPTY_;
+			yyval->last = NULL;
 			yyval->is_const = 1;
 			if(yyvsp[0]->is_const == 0)
 				yyerror("variable in const place");
 		}
-#line 2786 "philip.tab.cpp"
+#line 2779 "philip.tab.cpp"
     break;
 
 
-#line 2790 "philip.tab.cpp"
+#line 2783 "philip.tab.cpp"
 
       default: break;
     }
@@ -3018,18 +3011,23 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 850 "philip.y"
+#line 843 "philip.y"
 
 
 int main(){
-  fp = fopen("./input.txt","r"); yyin = fp;
+  fp = fopen("./input.txt", "r" ); yyin = fp;
+  fp = fopen("./output.txt","w+"); 
+  if(yaccdbg) fp = stdout;
   
   treeNode root(CompilUnit);
   initSymTab();
   printf("yyparse start\n");
   yyparse(&root);
   printf("yyparse over\n");
-  if(yaccdbg) dbgprt(root.first);
+  scanSymTab();
+  dbgprt(root.first);
+  if(mainIdx == -1) yyerror("main function undefined");
+  yyout = stdout;
   generate(root.first);
   
   fclose(fp);

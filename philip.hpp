@@ -1,3 +1,4 @@
+//for op
 #define EMPTY_	0x00
 #define LREQ_	0x01
 #define LR_	0x02
@@ -15,6 +16,7 @@
 #define DIV_	0x14
 #define MOD_	0x15
 
+//for type
 #define BinaryNode 0x00	//attr	first = left, last = right
 #define Assignment 0x01	//	first = obj, last = exp
 #define Declarate  0x02	//cst	first = definitions. last = NULL
@@ -40,16 +42,19 @@
 #define Index      0x16	//	first = constexp
 #define CompilUnit 0x17	//	first = decl/funcdef
 
+//for is_func
 #define notFunc  0x0
 #define voidFunc 0x1
 #define intFunc  0x3
 
+//for b_type
 #define b_return 0x1
 #define b_contin 0x2
 #define b_break  0x3
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #define MAXSYMBOL 128
 #define MAXSTACK  32
 #define MAXDIM    10
@@ -58,8 +63,15 @@
 	//if labelOne:end of if, labelTwo:beginning of cond = true,
 	//loop labelOne:end of loop, labelTwo: beginning of loop
 
-extern int labelCnt;
+extern FILE* fp;
 
+extern int yaccdbg;
+
+extern int labelCnt;
+extern int loop_begin, lb_valid;
+extern int loop_end, le_valid;
+extern int currentFuncType, cft_valid;
+extern int currentFuncIdx, currentBlockIdx;
 class treeNode{
 public:
 	treeNode *first;
@@ -69,7 +81,7 @@ public:
 	int op;
 	int b_type;
 	int val = -1;
-	int end_if, begin_true, end_loop, begin_loop;
+	int end_if = -1, begin_true= -1, end_loop = -1, begin_loop = -1;
 	union Attr{
 		int idx;
 		char *n;
@@ -79,7 +91,7 @@ public:
 	treeNode(int type = 0){ Type = type; }
 	int calc(){ //for ConstExpA to calculate its size : all const
 		if(val > -1) return val;
-		if(op == 0){
+		if(op == EMPTY_){
 			if(first != NULL){
 				return first->calc();
 			}else if(last != NULL){
@@ -109,11 +121,13 @@ extern int currentSym;
 
 extern int SymStack[MAXSTACK];
 extern int currentSymStack;
+
+extern int mainIdx;
+
 	//blocks or funcs will push this stack
 	//the end of blocks will pop this stack and step out if defined
 	//if the stack is 0, and I define, I will change it to 1 and real
 	// parameter is lower than FuncIDENT for 1 degree, but is higher than its block for 1 degree. It's easier to code.
-	
 
 class SymTabEntry{
 public:
@@ -130,8 +144,15 @@ public:
 
 extern SymTabEntry SymTab[MAXSYMBOL];
 
+extern bool tempSym[32];
+int getTmpSym();
+
 //first SymTabEntry is 0, without name, indicating the head of SymTab
+void STEdbgprt(SymTabEntry *ptr);
+
 void initSymTab();
+
+void scanSymTab();
 
 int step_out();
 
@@ -140,6 +161,6 @@ int lookup(const char *n, int limited = 0, int func = 0);
 // if(lookup(n,1) != -1) return -1;
 // SymTab[SymCnt].modify(n,f,c,r,......);
 
-void dbgprt(treeNode *node, int level = 0);
+void dbgprt(treeNode *node, int level = 0, int *var = NULL);
 
-void generate(treeNode *node);
+void generate(treeNode *node, char *var = NULL);

@@ -10,10 +10,8 @@ extern int yylex(void);
 extern int yyparse(treeNode*);
 void yyerror(treeNode*, string);
 void yyerror(string);
-FILE *fp = NULL;
 extern FILE *yyin;
 extern FILE *yyout;
-int yaccdbg = 1;
 %}
 
 %token INT_CONST IDENT IF ELSE WHILE CONTINUE BREAK CONST
@@ -295,7 +293,7 @@ FuncDef_pre   : VOID IDENT{
 			SymStack[currentSymStack] = 1;
 			$2->attr.idx = currentSym;
 			
-			++currentSymStack;
+			++currentSymStack; SymStack[currentSymStack] = 0;
 			
 			$$ = new treeNode();
 			$$->attr.idx = currentSym;
@@ -317,12 +315,11 @@ FuncDef_pre   : VOID IDENT{
 			SymStack[currentSymStack] = 1;
 			$2->attr.idx = currentSym;
 			
-			++currentSymStack;
+			++currentSymStack; SymStack[currentSymStack] = 0;
 			
 			$$ = new treeNode();
 			$$->attr.idx = currentSym;
 			delete $2;
-			//printf("FLAG!");
               	};
 
 FuncDef       : FuncDef_pre BRA KET Block {
@@ -350,7 +347,7 @@ FuncDef       : FuncDef_pre BRA KET Block {
               	} Block {
 			
               		$$ = new treeNode(FuncDef);
-			$$->first = $3->first; delete $3;
+			$$->first = $3;
 			$$->last = $6;
 			$$->attr.idx = $1->attr.idx;
 			
@@ -362,20 +359,23 @@ FuncDef       : FuncDef_pre BRA KET Block {
               	};
               	
 FuncFParams   : FuncFParam COMMA FuncFParams{
-			$1->last = $3->first;
-			$$ = new treeNode();
-			$$->first = $1; delete $3;
+			printf("FuncFParam FuncFParam Flag!\n");
+			//$1->last = $3->first;
+			$$ = new treeNode(Parameter);
+			$$->first = $1;
+			$$->last = $3;
 		}
               | FuncFParam{
-              		$1->last = NULL;
-              		$$ = new treeNode();
+              		printf("FuncFParam Flag!\n");
+              		$$ = new treeNode(Parameter);
               		$$->first = $1;
+              		$$->last = NULL;
               	};
 FuncFParam    : INT IDENT BRAA KETT ConstExpAs{
 			//define this IDENT;
 			
 				//first check if it is defined
-	      		char *N = strdup($1->attr.n);
+	      		char *N = strdup($2->attr.n);
               		if(lookup(N,1) != -1) yyerror("symbol re-defined");
               		
               			//recursively get those parameters
@@ -403,7 +403,7 @@ FuncFParam    : INT IDENT BRAA KETT ConstExpAs{
               		//define this IDENT
               		
               			//first check if it is defined
-              		char *N = strdup($1->attr.n);
+              		char *N = strdup($2->attr.n);
               		if(lookup(N,1) != -1) yyerror("symbol re-defined");
               		
               			//define it
@@ -418,10 +418,11 @@ FuncFParam    : INT IDENT BRAA KETT ConstExpAs{
               		$$->attr.idx = currentSym;
               	}
               | INT IDENT{
+              		printf("INT IDENT\n");
               		//define this IDENT
               		
               			//first check if it is defined
-              		char *N = strdup($1->attr.n);
+              		char *N = strdup($2->attr.n);
               		if(lookup(N,1) != -1) yyerror("symbol re-defined");
               		
               			//define it
@@ -436,20 +437,18 @@ FuncFParam    : INT IDENT BRAA KETT ConstExpAs{
               		$$->attr.idx = currentSym;
               	};
 
-Block         : BRAAA { ++currentSymStack; } BlockItems KETTT{
-			printf("Block FLAG!\n");
-
+Block         : BRAAA { ++currentSymStack;  SymStack[currentSymStack] = 0;
+		} BlockItems KETTT {
 			$$ = new treeNode(StmtBlock);
 			$$->first = $3->first;
 			delete $3;
-			
-			
-			
+
 			if(SymStack[currentSymStack] == 1)
 				currentSym = step_out();
 			--currentSymStack;
 		}
-              | BRAAA { ++currentSymStack; } KETTT{
+              | BRAAA { ++currentSymStack; SymStack[currentSymStack] = 0;
+              	} KETTT {
               		$$ = new treeNode(StmtBlock);
               		$$->first = NULL; //same as above to avoid conflict
               		if(SymStack[currentSymStack] == 1)
@@ -638,6 +637,7 @@ UnaryExp      : PrimaryExp{
               		
               		$$->first = $3;
 			$$->is_const = 0;
+			$$->attr.idx = res;
               	}
               | IDENT BRA KET{
               
@@ -649,6 +649,7 @@ UnaryExp      : PrimaryExp{
               		
               		$$->first = NULL;
               		$$->is_const = 0;
+              		$$->attr.idx = res;
               	}
               | ADD PrimaryExp{
 			$$ = new treeNode(Expression);
@@ -833,6 +834,7 @@ ConstExp      : AddExp{
 			$$ = new treeNode(Expression);
 			$$->first = $1;
 			$$->op = EMPTY_;
+			$$->last = NULL;
 			$$->is_const = 1;
 			if($1->is_const == 0)
 				yyerror("variable in const place");
@@ -841,14 +843,19 @@ ConstExp      : AddExp{
 %%
 
 int main(){
-  fp = fopen("./input.txt","r"); yyin = fp;
+  fp = fopen("./input.txt", "r" ); yyin = fp;
+  fp = fopen("./output.txt","w+"); 
+  if(yaccdbg) fp = stdout;
   
   treeNode root(CompilUnit);
   initSymTab();
   printf("yyparse start\n");
   yyparse(&root);
   printf("yyparse over\n");
-  if(yaccdbg) dbgprt(root.first);
+  scanSymTab();
+  dbgprt(root.first);
+  if(mainIdx == -1) yyerror("main function undefined");
+  yyout = stdout;
   generate(root.first);
   
   fclose(fp);
