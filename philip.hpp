@@ -113,6 +113,7 @@ public:
 		}
 	}
 };
+extern treeNode* ROOT;
 
 extern char *Names[MAXSYMBOL];
 extern int SymCnt;

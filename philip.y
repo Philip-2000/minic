@@ -842,22 +842,25 @@ ConstExp      : AddExp{
 
 %%
 
-int main(){
-  fp = fopen("./input.txt", "r" ); yyin = fp;
-  fp = fopen("./output.txt","w+"); 
-  if(yaccdbg) fp = stdout;
-  
+int main(int argc, char *argv[]){
+  fp = fopen(argv[3], "r"); yyin = fp; fp = stdout;
   treeNode root(CompilUnit);
   initSymTab();
   printf("yyparse start\n");
   yyparse(&root);
+  ROOT = &root;
   printf("yyparse over\ndbgprt start\n");
   scanSymTab();
   dbgprt(root.first);
   if(mainIdx == -1) yyerror("main function undefined");
   printf("dbgprt over\ngenerate start\n");
-  generate(root.first);
   
+  
+  fclose(yyin);
+  if(yaccdbg == 0) fp = fopen(argv[5],"w");
+  
+  generate(root.first);
+  printf("generate over\n");
   if(yaccdbg == 0) fclose(fp);
   return 0;
 }

@@ -1,0 +1,59 @@
+var T14
+var T15
+var 40 T16
+f_abc [0]
+var T18
+var T19
+var 80 T20
+var T21
+var t0
+var t1
+var t2
+T18 = 1
+t1 = 2 * T18
+t0 = 2 + t1
+T19 = t0
+T20[0] = 5
+T20[4] = 4
+T20[8] = 3
+T20[12] = 2
+T20[16] = 1
+t1 = T18 == 2
+if t1 > 0 goto l1
+goto l0
+l1:
+t0 = 0
+t0 = t0 + T18
+t0 = t0 * 4
+t0 = T14 + 1
+t2 = 0
+t2 = t2 + t0
+t2 = t2 * 4
+T20[t0] = T20[t2]
+l0:
+T21 = 0
+l5:
+if 1 > 0 goto l6
+goto l4
+l6:
+t0 = T21 + 1
+T21 = t0
+t0 = T21 > 10
+if t0 > 0 goto l3
+goto l2
+l3:
+goto l5
+l2:
+return 0
+end f_abc
+f_main [0]
+T14 = 5
+T15 = 6
+T16[0] = 1
+T16[4] = 3
+T16[8] = 5
+T16[12] = 0
+var T23
+T23 = 0
+return T23
+end f_main

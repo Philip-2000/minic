@@ -1,8 +1,8 @@
 #include "philip.hpp"
 
 FILE* fp = NULL;
-
-int yaccdbg = 1;
+treeNode *ROOT = NULL;
+int yaccdbg = 0;
 
 int labelCnt;
 int loop_begin, lb_valid = 0;
@@ -128,48 +128,48 @@ int lookup(const char *n, int limited, int func){
 
 void opTable(int op){
 	switch(op){
-		case LREQ_:	printf("<="); return;
-		case LR_:	printf("<"); return;
-		case GREQ_:	printf(">="); return;
-		case GR_:	printf(">"); return;
-		case EQEQ_:	printf("=="); return;
-		case NOEQ_:	printf("!="); return;
-		case ANDAN_:	printf("&&"); return;
-		case OROR_:	printf("||"); return;
-		case NO_:	printf("!"); return;
-		case EQ_:	printf("="); return;
-		case ADD_:	printf("+"); return;
-		case SUB_:	printf("-"); return;
-		case MUL_:	printf("*"); return;
-		case DIV_:	printf("/"); return;
-		case MOD_:	printf("mod"); return;
+		case LREQ_:	fprintf(fp,"<="); return;
+		case LR_:	fprintf(fp,"<"); return;
+		case GREQ_:	fprintf(fp,">="); return;
+		case GR_:	fprintf(fp,">"); return;
+		case EQEQ_:	fprintf(fp,"=="); return;
+		case NOEQ_:	fprintf(fp,"!="); return;
+		case ANDAN_:	fprintf(fp,"&&"); return;
+		case OROR_:	fprintf(fp,"||"); return;
+		case NO_:	fprintf(fp,"!"); return;
+		case EQ_:	fprintf(fp,"="); return;
+		case ADD_:	fprintf(fp,"+"); return;
+		case SUB_:	fprintf(fp,"-"); return;
+		case MUL_:	fprintf(fp,"*"); return;
+		case DIV_:	fprintf(fp,"/"); return;
+		case MOD_:	fprintf(fp,"\%"); return;
 		default:	printf("undefined operator"); return;
 	}
 }
 
 void typeTable(int type){
 	switch(type){
-		case Assignment: 	printf("Assignment"); return;
-		case Declarate: 	printf("Declarate"); return;
-		case Define: 		printf("Define"); return;
-		case ParaDefine: 	printf("ParaDefine"); return;
-		case Expression: 	printf("Expression"); return;
-		case Condition: 	printf("Condition"); return;
-		case Object: 		printf("Object"); return;
-		case FuncDef: 		printf("FuncDef"); return;
-		case FuncCall: 	printf("FuncCall"); return;
-		case StmtBlock:	printf("StmtBlock"); return;
-		case If: 		printf("If"); return;
-		case Else: 		printf("Else"); return;
-		case Loop: 		printf("Loop"); return;
-		case Branch: 		printf("Branch"); return;
-		case Definition: 	printf("Definition"); return;
-		case Parameter: 	printf("Parameter"); return;
-		case Argument: 	printf("Argument"); return;
-		case BlockIt: 		printf("BlockIt"); return;
-		case Values: 		printf("Values"); return;
-		case Index: 		printf("Index"); return;
-		case CompilUnit: 	printf("CompilUnit"); return;
+		case Assignment: 	fprintf(fp,"Assignment"); return;
+		case Declarate: 	fprintf(fp,"Declarate"); return;
+		case Define: 		fprintf(fp,"Define"); return;
+		case ParaDefine: 	fprintf(fp,"ParaDefine"); return;
+		case Expression: 	fprintf(fp,"Expression"); return;
+		case Condition: 	fprintf(fp,"Condition"); return;
+		case Object: 		fprintf(fp,"Object"); return;
+		case FuncDef: 		fprintf(fp,"FuncDef"); return;
+		case FuncCall: 	fprintf(fp,"FuncCall"); return;
+		case StmtBlock:	fprintf(fp,"StmtBlock"); return;
+		case If: 		fprintf(fp,"If"); return;
+		case Else: 		fprintf(fp,"Else"); return;
+		case Loop: 		fprintf(fp,"Loop"); return;
+		case Branch: 		fprintf(fp,"Branch"); return;
+		case Definition: 	fprintf(fp,"Definition"); return;
+		case Parameter: 	fprintf(fp,"Parameter"); return;
+		case Argument: 	fprintf(fp,"Argument"); return;
+		case BlockIt: 		fprintf(fp,"BlockIt"); return;
+		case Values: 		fprintf(fp,"Values"); return;
+		case Index: 		fprintf(fp,"Index"); return;
+		case CompilUnit: 	fprintf(fp,"CompilUnit"); return;
 		default:		printf("Unknown node type"); return;
 	}
 }
@@ -282,13 +282,21 @@ void dbgprt(treeNode *node, int level, int *var){
 	}
 	if(T == Expression){
 		if(node->val != -1) {
-			printf(" value %d\n", node->val);
+			printf(" value %d", node->val);
 		}
 		else if( node->op != EMPTY_ ) {
 			printf(" op: "); opTable(node->op);
 			varFirst = new int; varLast = new int;
 		}
 		else printf(" no value and no operator");
+	}
+	if(T == Branch){
+		if(node->b_type == b_return) printf(" return");
+		else if(node->b_type = b_contin) printf(" continue");
+		else printf(" break");
+		if(node->b_type == b_return && node->last != NULL){
+			varLast = new int;
+		}
 	}
 	
 	//recursive
@@ -340,8 +348,13 @@ void dbgprt(treeNode *node, int level, int *var){
 		cft_valid = 0;
 	}
 	if(T == Object && node->first != NULL){
-		if(varFirst != NULL) *var = *varFirst;
+		if(varFirst!=NULL){*var= *varFirst; TempSym[*varFirst]=0;}
 		else var = NULL;
+	}
+	if(T == Branch){
+		if(node->b_type == b_return && node->last != NULL){
+			TempSym[*varLast] = 0;
+		}
 	}
 }
 
@@ -359,18 +372,20 @@ void generate(treeNode *node, char *var){
 		while(pointer != NULL){
 			if( !(pointer->Type & 0x10) )
 				printf("generate:BinaryNode in Linked Tab");
-			generate(pointer->first, posVar); printf("\n");
+			generate(pointer->first, posVar); 
 			if(T == Index){
 				//Address Translation
-				fprintf(fp,"t%d = t%d * %d\n",
+				if(pos == 0)
+					fprintf(fp,"t%d = 0\n",IDX);
+				else
+					fprintf(fp,"t%d = t%d * %d\n",
 						IDX, IDX, sz[pos]);
 				//gen: t? = t? * sz[pos];
 				fprintf(fp,"t%d = t%d + %s\n",
-					IDX,IDX,posVar);
+					IDX, IDX, posVar);
 				//gen: t? = t? + posVar;
 			}
-			pointer = pointer->last;
-			pos++;
+			pointer = pointer->last; pos++;
 		}
 		if(T == Index) {
 			fprintf(fp, "t%d = t%d * 4\n", IDX, IDX);
@@ -485,9 +500,41 @@ void generate(treeNode *node, char *var){
 		currentFuncType = SymTab[IDX].is_func; cft_valid = 1;
 		currentFuncIdx = IDX + 1;
 		currentBlockIdx = IDX + 1 + SymTab[IDX].szCnt;
-		//initialization
+		//global initialization
 		if(IDX == mainIdx){
-			//initialization
+			treeNode *cUnit = ROOT->first;
+			treeNode *decla, *defi;
+			while(cUnit != NULL){
+				if(cUnit->first->Type == FuncDef){
+					if(cUnit->first->attr.idx
+						== mainIdx) break;
+					cUnit = cUnit->last;
+					continue; //skip functions
+				}
+				decla = cUnit->first->first;
+				while(decla != NULL){
+					defi = decla->first;
+					if(defi->last == NULL) {
+						decla=decla->last; continue;
+					}
+			
+		int IIDX = defi->first->attr.idx;
+		sprintf(arrSym,"T%d",IIDX);
+		bound = SymTab[IIDX].szCnt;
+		if(bound == 0){
+			char var[10] = "";
+			generate(defi->last->first, var);
+			fprintf(fp,"%s = %s\n", arrSym, var);
+		}else{
+			int len = 1;
+			for(int i=0; i<bound; ++i)len *= SymTab[IIDX].sz[i];
+			fill_in(defi->last->first,SymTab[IIDX].sz,0,len,0);
+		}
+		
+					decla = decla->last;
+				}
+				cUnit = cUnit->last;
+			}
 		}
 		//var def
 		int tmp = SymTab[IDX].is_const;
@@ -501,7 +548,7 @@ void generate(treeNode *node, char *var){
 			}
 			fprintf(fp,"T%d\n",i+currentBlockIdx);
 		}
-		tmp = SymTab[IDX].is_func;
+		tmp = node->is_ptr;
 		for(int i = 0; i <= tmp; ++i) fprintf(fp,"var t%d\n",i);
 		
 		//deal with the block
@@ -517,7 +564,7 @@ void generate(treeNode *node, char *var){
 			//parameter
 			fprintf(fp,"\n");
 		}
-		fprintf(fp,"call f_%s", Names[IDX]);
+		fprintf(fp,"call f_%s\n", Names[IDX]);
 		return;
 	}
 	
